@@ -5,7 +5,7 @@ const DataContext = createContext();
 const DataContextProvider = ({ url, children }) => {
   const [data, setData] = useState([
     { clickLives: [], intLives: [] },
-    { desiAPIdata: 'desi api code..' },
+    { desiAPIdata: 'designer api code..', url: '' },
   ]);
   const [loading, setLoading] = useState(true);
 
@@ -21,13 +21,14 @@ const DataContextProvider = ({ url, children }) => {
 
   const fetchData = async () => {
     try {
-      console.log(
-        'url inside DataContext Provider',
-        typeof url === 'string',
-        url === '',
-        url
-      );
+      //  console.log('url inside DataContext Provider', typeof url === 'string', url === '', url);
       if (typeof url !== 'string') return;
+
+      setData((prevData) => [
+        { ...prevData[0] }, //
+        { ...prevData[1], url: url },
+      ]);
+
       const response = await fetch(url + '?cacheBurst=' + Math.random());
 
       if (!response.ok) {
@@ -39,7 +40,7 @@ const DataContextProvider = ({ url, children }) => {
       return data;
     } catch (error) {
       // Handle the error
-      console.error('An error occurred:', error);
+      //  console.error('An error occurred:', error);
       // Optionally, you can throw or return an error object
       throw error;
     }
@@ -48,7 +49,7 @@ const DataContextProvider = ({ url, children }) => {
   const extractText = (text) => {
     setData((prevData) => [
       { ...prevData[0] }, //
-      { ...prevData[1], desiAPIdata: text }, //
+      { ...prevData[1], desiAPIdata: text },
     ]);
     const regex = /Expo\.designerAPI\.firePixel\((.*?)\)/g;
     const matches = text.matchAll(regex);

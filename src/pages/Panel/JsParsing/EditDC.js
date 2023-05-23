@@ -24,8 +24,8 @@ export default function EditDC(prop) {
   }
 
   useEffect(() => {
-    setIsOpen(true);
-  }, [prop.showEditor]);
+    setIsOpen(prop.AceState);
+  }, [prop.AceState]);
 
   const showModal = () => {
     setIsOpen(true);
@@ -33,7 +33,7 @@ export default function EditDC(prop) {
 
   const hideModal = () => {
     setIsOpen(false);
-    prop.state(false);
+    // prop.hideEditornpm(false);
   };
 
   return (

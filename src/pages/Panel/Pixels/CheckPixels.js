@@ -1,5 +1,13 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import { DataContext } from '../Data/DataContext';
+import '../../Panel/bootstrap.min.css';
+
+import AceEditor from 'react-ace';
+
+import 'ace-builds/src-noconflict/mode-javascript';
+import 'ace-builds/src-noconflict/theme-github_dark';
+import 'ace-builds/src-noconflict/ext-language_tools';
+
 import {
   Button,
   ModalFooter,
@@ -10,8 +18,6 @@ import {
 } from 'react-bootstrap';
 
 import '../../Panel/bootstrap.min.css';
-import { getDesiDataFile } from '../fetchFiles.js';
-import EditDC from '../JsParsing/EditDC';
 
 let CTAs = [];
 
@@ -19,19 +25,20 @@ export default function CheckPixels(prop) {
   const { data, loading } = useContext(DataContext);
   const [intLives, setIntLives] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [loadAce, setLoadAce] = useState(false);
+  const [showACEModal, setShowACEModal] = useState(false);
+  const editorRef = React.useRef();
+  const [isAceOpen, setIsAceOpen] = useState(false);
+  const [desiApiData, setDesiApiData] = useState('Loading Designer API...');
+  const [editStatus, setEditStatus] = useState(false);
+  const [pageStatus, setPageStatus] = useState('new');
 
-  function createCTAArray(cta, pxls) {
-    let ctaArray = pxls.map((item) => ({
-      cta: item,
-      checked: item === cta ? item === cta : '',
-    }));
+  let currentUrl = null;
 
-    return ctaArray;
-  }
+  var port = chrome.runtime.connect({
+    name: 'tab_' + chrome.devtools.inspectedWindow.tabId,
+  });
 
   if (prop.currentPixel !== undefined) {
-    console.log('-=-=-=-=-=>>>>>', data[1]);
     let pxl = prop.currentPixel.match(/id:(.*?);/)[1];
     data[0].intLives.map((data, index) => {
       if (data.ints === pxl) {
@@ -44,30 +51,49 @@ export default function CheckPixels(prop) {
         data.checked = true;
       }
     });
+  }
 
-    //console.log('--------------||', data.clicks, pxl);
+  let activeTabId = -1;
+  let oldUrl = null;
+  chrome.tabs.onActivated.addListener((activeInfo) => {
+    activeTabId = activeInfo.tabId;
+  });
+
+  function onTabUpdated(tabId, changeInfo, tab) {
+    if (changeInfo.url) {
+      setPageStatus('new');
+    } else {
+      setPageStatus('refresh');
+    }
+    chrome.tabs.onUpdated.removeListener(onTabUpdated);
   }
 
   useEffect(() => {
-    //.match(/id:(.*?);/)[1]
-
-    setIntLives(data[0].intLives);
-  }, [prop.currentPixel]);
+    chrome.tabs.onUpdated.addListener(onTabUpdated);
+    console.log('PageStatus ', pageStatus);
+    if (pageStatus === 'new') {
+      if (data[1].desiAPIdata.search('<!DOCTYPE html>') == -1) {
+        setDesiApiData(data[1].desiAPIdata);
+      } else {
+        setDesiApiData('Loading designer api...');
+      }
+    }
+  }, [data[1].desiAPIdata]);
 
   useEffect(() => {
+    /*
     console.log(
       'from context api ',
       data[0].intLives,
       data.loading,
       prop.currentPixel
     );
+    */
     if (data[0].intLives !== undefined) {
       setIntLives(data[0].intLives);
     }
 
-    // listen for tab updates
-    chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-      // check if the updated tab is the current tab
+    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       if (
         tabId === chrome.devtools.inspectedWindow.tabId &&
         changeInfo.status === 'loading'
@@ -78,7 +104,7 @@ export default function CheckPixels(prop) {
       }
     });
   }, [data.clickLives, data.intLives]);
-
+  //////
   const showModal = () => {
     setIsOpen(true);
   };
@@ -87,9 +113,34 @@ export default function CheckPixels(prop) {
     setIsOpen(false);
   };
 
-  const loadeAce = () => {
-    setLoadAce(true);
+  const showACEModalListener = () => {
+    setShowACEModal(true);
+    setIsOpen(false);
   };
+
+  ///// Ace Editor
+
+  function onAceChange(newValue) {
+    setPageStatus('refresh');
+    setEditStatus(true);
+    setDesiApiData(newValue);
+  }
+
+  const showAceModal = () => {
+    setIsAceOpen(true);
+  };
+
+  const hideAceModal = () => {
+    setIsAceOpen(false);
+  };
+
+  const reloadStatusListner = () => {
+    setPageStatus('refresh');
+    port.postMessage({ reload: true });
+    setEditStatus(true);
+  };
+
+  //////////////
 
   return (
     <>
@@ -104,7 +155,7 @@ export default function CheckPixels(prop) {
           <Modal.Title>IntLive and clickLive Pixels</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {console.log('intLives updated:----', data[0])}
+          {/*console.log('intLives updated:----', data[1])*/}
           {data[0].intLives !== undefined
             ? data[0].intLives.map((data, index) => {
                 return (
@@ -158,16 +209,39 @@ export default function CheckPixels(prop) {
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={hideModal}>Cancel</Button>
-          <Button onClick={loadeAce}>View/Edit 'designer-config.js'</Button>
+          <Button onClick={showAceModal}>View/Edit 'designer-config.js'</Button>
         </Modal.Footer>
       </Modal>
-      {loadAce && (
-        <EditDC
-          showEditor={loadAce}
-          state={setLoadAce}
-          DAPIDATA={data[1].desiAPIdata}
-        />
-      )}
+      {/*<EditDC AceState={showACEModal} DAPIDATA={data[1].desiAPIdata} />*/}
+      <Modal dialogClassName="modal-lg" show={isAceOpen} onHide={hideAceModal}>
+        <Modal.Header>
+          <Modal.Title>Edit</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <AceEditor
+            value={desiApiData}
+            ref={editorRef}
+            mode={'javascript'}
+            width={'100%'}
+            fontSize={14}
+            focus={true}
+            wrapEnabled={false}
+            theme="github_dark"
+            onChange={onAceChange}
+            name="editorRef"
+            editorProps={{ $blockScrolling: false }}
+            setOptions={{
+              enableBasicAutocompletion: true,
+              enableLiveAutocompletion: true,
+              enableSnippets: true,
+            }}
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={hideAceModal}>Cancel</Button>
+          <Button onClick={reloadStatusListner}>Refresh</Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }

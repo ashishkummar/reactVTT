@@ -1,5 +1,7 @@
 console.log('details.url');
 let desiURLfound = false;
+let userReload = false;
+var currentUrl = null;
 
 chrome.webRequest.onBeforeRequest.addListener(
   function (details) {
@@ -106,9 +108,12 @@ chrome.webRequest.onHeadersReceived.addListener(
           console.log(fetchScript(details.url));
           window.desifilegot = true;
         }
-        notifyDevtools({
-          desiConfURL: details.url,
-        });
+
+        if (!userReload) {
+          notifyDevtools({
+            desiConfURL: details.url,
+          });
+        }
       }
     }
 
@@ -146,13 +151,23 @@ chrome.runtime.onConnect.addListener(function (port) {
     if (i !== -1) ports.splice(i, 1);
   });
 
-  port.onMessage.addListener(function (msg) {
+  port.onMessage.addListener(function (request) {
     // Received message from devtools. Do something:
-    console.log('Received message from devtools page', msg);
+    console.log('Received message from devtools page', request);
+    if (request.reload) {
+      userReload = true;
+      chrome.tabs.reload();
+    }
   });
 });
-//
 
+//
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  // check if the updated tab is the current tab
+  if (changeInfo.status === 'loading') {
+    userReload = false;
+  }
+});
 // Function to send a message to background js
 function notifyBackgroundJs(msgdata, medId) {
   console.log('notifyBackgroundJs called...', msgdata, medId);

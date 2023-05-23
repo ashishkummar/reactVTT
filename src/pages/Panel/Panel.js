@@ -61,7 +61,7 @@ function Panel() {
         if (msg.desiConfURL !== undefined) {
           //(msg.desiConfURL);
 
-          console.log(msg.desiConfURL);
+          // console.log(msg.desiConfURL);
           setDesiAPIurl(msg.desiConfURL);
           //fetchDataFile(msg.desiConfURL)
           // .then((result) => {
