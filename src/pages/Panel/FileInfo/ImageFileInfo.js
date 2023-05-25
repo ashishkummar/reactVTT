@@ -3,11 +3,10 @@ import React, { useState, useRef, useEffect } from 'react';
 export default function ImageFileInfo(prop) {
   const imagesEndRef = useRef(null);
   const [sortedImages, setSortedImages] = useState([]);
+  const [ImageFiles, setImageFiles] = useState([{}]);
 
   useEffect(() => {
-    //console.log(prop.imgURL.images);
-    //return;
-    imagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    //imagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
 
     // calculate the file size of each image URL in bytes
     const getImageSize = (url) => {
@@ -45,8 +44,8 @@ export default function ImageFileInfo(prop) {
       return sortedImageObjects;
     };
 
-    sortImages(prop.imgURL.images).then(setSortedImages);
-  }, [prop.imgURL.images]);
+    sortImages(ImageFiles).then(setSortedImages);
+  }, [ImageFiles]);
 
   const formatBytes = (bytes, decimals = 2) => {
     if (bytes === 0) return '0 Bytes';
@@ -72,10 +71,57 @@ export default function ImageFileInfo(prop) {
     return trimmedString;
   };
 
+  var port = chrome.runtime.connect({
+    name: 'tab_' + chrome.devtools.inspectedWindow.tabId,
+  });
+  let images = [];
+  useEffect(() => {
+    function handlePortMessage(msg) {
+      try {
+        if (msg.imgURL !== undefined) {
+          images.push(msg.imgURL.split('?')[0]);
+          images = Array.from(new Set(images));
+
+          setTimeout(() => {
+            // setImageFiles({ images });
+          }, 6000);
+        }
+      } catch (err) {
+        //console.log('errInfo from video quartile ', err, 'msg  = ', msg);
+      }
+    }
+
+    // add the listener once when the component mounts
+    port.onMessage.addListener(handlePortMessage);
+
+    return () => {
+      port.onMessage.removeListener(handlePortMessage);
+    };
+  }, []);
+
+  // clean up the listener when the component unmounts or page refreshes
+  window.addEventListener('beforeunload', () => {
+    //port.onMessage.removeListener(handlePortMessage);
+  });
+
+  const onUpdate = (tabId, changeInfo, tab) => {
+    if (
+      tabId === chrome.devtools.inspectedWindow.tabId &&
+      changeInfo.status === 'loading'
+    ) {
+      console.log('REFR');
+      setClicklivePixels([{}]);
+    }
+    chrome.tabs.onUpdated.removeListener(onUpdate);
+  };
+  chrome.tabs.onUpdated.addListener(onUpdate);
+
   return (
     <div>
       ImageFileInfo {new Date().getTime()}
+      {/* 
       <div style={{ height: '100px', border: '1px solid', overflow: 'auto' }}>
+    
         {sortedImages.map((obj, index) => (
           <div
             title={obj.url.split('/')[obj.url.split('/').length - 1]}
@@ -89,6 +135,8 @@ export default function ImageFileInfo(prop) {
         ))}
         <div ref={imagesEndRef} />
       </div>
+
+    */}
     </div>
   );
 }

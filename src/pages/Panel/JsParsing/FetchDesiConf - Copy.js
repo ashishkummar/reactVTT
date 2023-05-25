@@ -70,7 +70,7 @@ export default function FetchDesiConf(prop) {
 
     // clean up the listener when the component unmounts or page refreshes
     window.addEventListener('beforeunload', () => {
-      port.onMessage.removeListener(handlePortMessage);
+      // port.onMessage.removeListener(handlePortMessage);
     });
 
     // listen for tab updates

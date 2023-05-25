@@ -5,15 +5,8 @@ var currentUrl = null;
 
 chrome.webRequest.onBeforeRequest.addListener(
   function (details) {
-    // console.log('--> ', details.url);
-
     tabId = 'tab_' + details.tabId;
     windowId = 'win_' + details.windowId;
-
-    //notifyDevtools({
-    //type: tabId,
-    //data: windowId,
-    //});
   },
   { urls: ['<all_urls>'] },
   ['blocking']
@@ -105,15 +98,16 @@ chrome.webRequest.onHeadersReceived.addListener(
     if (details.url.indexOf('designer-config.js') != -1) {
       if (details.url.indexOf('config.js&') === -1) {
         if (window.desifilegot == undefined) {
-          console.log(fetchScript(details.url));
-          window.desifilegot = true;
+          // console.log(fetchScript(details.url));
+          //window.desifilegot = true;
         }
-
-        if (!userReload) {
-          notifyDevtools({
-            desiConfURL: details.url,
-          });
-        }
+        console.log(details.url);
+        // if (!userReload) {
+        notifyDevtools({
+          desiConfURL: details.url,
+        });
+        // userReload = true;
+        // }
       }
     }
 

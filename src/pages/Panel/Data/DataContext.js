@@ -47,6 +47,7 @@ const DataContextProvider = ({ url, children }) => {
   };
 
   const extractText = (text) => {
+    //console.log(text);
     setData((prevData) => [
       { ...prevData[0] }, //
       { ...prevData[1], desiAPIdata: text },
