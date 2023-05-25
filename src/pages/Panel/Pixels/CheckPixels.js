@@ -5,6 +5,7 @@ import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-github_dark';
 import 'ace-builds/src-noconflict/ext-language_tools';
+import 'ace-builds/src-noconflict/ext-searchbox';
 
 import {
   Button,
@@ -80,6 +81,10 @@ export default function CheckPixels(prop) {
     function onTabUpdated(tabId, changeInfo, tab) {
       if (changeInfo.url) {
         setPageStatus('new');
+        port.postMessage({
+          reload: false,
+          editedDesiConf: '',
+        });
         //console.log('new');
       }
     }
@@ -135,7 +140,14 @@ export default function CheckPixels(prop) {
 
   const reloadStatusListner = () => {
     setPageStatus('refresh');
-    port.postMessage({ reload: true });
+    port.postMessage({
+      reload: true,
+      editedDesiConf:
+        'data:' +
+        'text/javascript' +
+        ';charset=UTF-8;base64,' +
+        btoa(unescape(encodeURIComponent(desiApiData))),
+    });
     setEditStatus(true);
   };
 

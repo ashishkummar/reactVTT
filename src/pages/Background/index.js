@@ -1,12 +1,23 @@
-console.log('details.url');
 let desiURLfound = false;
 let userReload = false;
 var currentUrl = null;
+var editedDesiConf = '';
 
 chrome.webRequest.onBeforeRequest.addListener(
   function (details) {
     tabId = 'tab_' + details.tabId;
     windowId = 'win_' + details.windowId;
+    if (details.url.indexOf('designer-config.js') != -1) {
+      if (details.url.indexOf('config.js&') === -1) {
+        if (editedDesiConf !== '') {
+          if (editedDesiConf.length >= 1) {
+            return {
+              redirectUrl: unescape(encodeURIComponent(editedDesiConf)),
+            };
+          }
+        }
+      }
+    }
   },
   { urls: ['<all_urls>'] },
   ['blocking']
@@ -150,7 +161,10 @@ chrome.runtime.onConnect.addListener(function (port) {
     console.log('Received message from devtools page', request);
     if (request.reload) {
       userReload = true;
+      editedDesiConf = request.editedDesiConf;
       chrome.tabs.reload();
+    } else {
+      editedDesiConf = '';
     }
   });
 });
