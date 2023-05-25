@@ -17,7 +17,8 @@ import {
 } from 'react-bootstrap';
 
 export default function CheckPixels(prop) {
-  const editorRef = React.useRef();
+  const editorRef = useRef();
+
   const { data, loading } = useContext(DataContext);
   const [intLives, setIntLives] = useState([]);
   const [clickLives, setClickLives] = useState([]);
@@ -152,6 +153,10 @@ export default function CheckPixels(prop) {
   };
 
   //////////////
+  // Call scrollIntoView when the transition starts
+  const bringInView = (e) => {
+    e.target.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <>
@@ -167,56 +172,61 @@ export default function CheckPixels(prop) {
         </Modal.Header>
         <Modal.Body>
           {/*console.log('intLives updated:----', clickLives, intLives) */}
-          {intLives !== undefined
-            ? intLives.map((data, index) => {
-                return (
-                  <div key={index}>
-                    <div
-                      style={
-                        data.checked
-                          ? {
-                              cursor: 'pointer',
-                              display: 'inline-block',
-                              whiteSpace: 'nowrap',
-                              width: '200px',
-                              backgroundColor: 'skyblue',
-                              transition:
-                                'background-color .5s cubic-bezier(0.03, 0.33, 0, 0.97)',
-                            }
-                          : {}
-                      }
-                    >
-                      {data.ints}
+          <div style={{ width: '100%', height: '500px', overflow: 'scroll' }}>
+            {intLives !== undefined
+              ? intLives.map((data, index) => {
+                  return (
+                    <div key={index}>
+                      <div
+                        onTransitionEnd={bringInView}
+                        style={
+                          data.checked
+                            ? {
+                                cursor: 'pointer',
+                                display: 'inline-block',
+                                whiteSpace: 'nowrap',
+                                width: '200px',
+                                backgroundColor: 'skyblue',
+
+                                transition:
+                                  'background-color .5s cubic-bezier(0.03, 0.33, 0, 0.97)',
+                              }
+                            : {}
+                        }
+                      >
+                        {data.ints}
+                      </div>
                     </div>
-                  </div>
-                );
-              })
-            : ''}
-          {clickLives !== undefined
-            ? clickLives.map((data, index) => {
-                return (
-                  <div key={index}>
-                    <div
-                      style={
-                        data.checked
-                          ? {
-                              cursor: 'pointer',
-                              display: 'inline-block',
-                              whiteSpace: 'nowrap',
-                              width: '200px',
-                              backgroundColor: 'pink',
-                              transition:
-                                'background-color .5s cubic-bezier(0.03, 0.33, 0, 0.97)',
-                            }
-                          : {}
-                      }
-                    >
-                      {data.clicks}
+                  );
+                })
+              : ''}
+            {clickLives !== undefined
+              ? clickLives.map((data, index) => {
+                  return (
+                    <div key={index}>
+                      <div
+                        onTransitionEnd={bringInView}
+                        style={
+                          data.checked
+                            ? {
+                                cursor: 'pointer',
+                                display: 'inline-block',
+                                whiteSpace: 'nowrap',
+                                width: '200px',
+                                backgroundColor: 'pink',
+                                transition:
+                                  'background-color .5s cubic-bezier(0.03, 0.33, 0, 0.97)',
+                              }
+                            : {}
+                        }
+                      >
+                        {data.clicks}
+                      </div>
                     </div>
-                  </div>
-                );
-              })
-            : ''}
+                  );
+                })
+              : ''}
+          </div>
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={hideModal}>Cancel</Button>
