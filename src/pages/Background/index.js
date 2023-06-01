@@ -87,9 +87,11 @@ chrome.webRequest.onHeadersReceived.addListener(
 
     // fetch video info	details
     if (details.url.indexOf('.mp4') != -1) {
-      notifyDevtools({
-        videoURL: details.url,
-      });
+      if (details.url.indexOf('init.mp4') !== -1) {
+        notifyDevtools({
+          videoURL: details.url,
+        });
+      }
     }
     //// images
     if (

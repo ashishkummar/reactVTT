@@ -52,8 +52,8 @@ export default function IntLive(prop) {
 
   return (
     <div>
-      {<CheckPixels />}
-      IntLive: {new Date().getTime()}
+      IntLive:
+      {<CheckPixels pixelType="intLive" />}
       <div style={{ height: '100px', border: '1px solid', overflow: 'auto' }}>
         {IntlivePixels !== 0
           ? IntlivePixels.map((data, index) => (

@@ -7,6 +7,7 @@ import ClickLive from './Pixels/ClickLive';
 import VideoFileInfo from './FileInfo/VideoFileInfo';
 import ImageFileInfo from './FileInfo/ImageFileInfo';
 import Footer from './Footer';
+import CheckPixels from './Pixels/CheckPixels';
 import { fetchDataFile, storeDesiDataFile } from './fetchFiles.js';
 import { DataContextProvider } from './Data/DataContext';
 
@@ -18,15 +19,7 @@ const MemoizedImageFiles = memo(ImageFileInfo);
 const MemoizedFooter = memo(Footer);
 
 function Panel() {
-  const [VideoPixels, setVideoPixels] = useState([{}]);
-  const [IntlivePixels, setIntlivePixels] = useState([{}]);
-  const [ClicklivePixels, setClicklivePixels] = useState([{}]);
-  const [VideoFiles, setVideoFiles] = useState([{}]);
-  const [ImageFiles, setImageFiles] = useState([{}]);
-  const [currentClickPixel, setCurrentClickPixel] = useState();
-  const [currentIntPixel, setCurrentIntPixel] = useState();
   const [desiAPIurl, setDesiAPIurl] = useState('');
-  const [pubDemopagesURL, setPubDemopagesURL] = useState();
 
   var port = chrome.runtime.connect({
     name: 'tab_' + chrome.devtools.inspectedWindow.tabId,
@@ -62,12 +55,11 @@ function Panel() {
       <DataContextProvider url={desiAPIurl}>
         <Header />
         <MemoizedVideoQuartiles />
-        {<MemoizedIntLive />}
-        {<MemoizedClickLive />}
-
-        {/*{<MemoizedImageFiles />}*/}
-        {/*<MemoizedVideoFiles vidURL={VideoFiles} /> */}
-        {/* <MemoizedFooter dempP={pubDemopagesURL} />*/}
+        <MemoizedIntLive />
+        <MemoizedClickLive />
+        {<MemoizedImageFiles />}
+        <MemoizedVideoFiles />
+        <MemoizedFooter />
       </DataContextProvider>
     </div>
   );

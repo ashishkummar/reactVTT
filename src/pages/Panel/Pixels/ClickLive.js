@@ -52,19 +52,9 @@ export default function ClickLive(prop) {
 
   return (
     <>
-      {' '}
-      {<CheckPixels />}
-      <div style={{ display: 'flex', flexDirection: 'row' }}>
-        <div>{new Date().getTime()} </div>
-        <div>
-          {/*
-          <FetchDesiConf
-            showPixel="clickLive"
-            currentPixel={prop.currentPixel}
-          ></FetchDesiConf>
-        */}
-        </div>
-      </div>
+      ClickLive
+      {<CheckPixels pixelType="clickLive" />}
+      <div style={{ display: 'flex', flexDirection: 'row' }}></div>
       <div style={{ height: '100px', border: '1px solid', overflow: 'auto' }}>
         {ClicklivePixels.length !== 0
           ? ClicklivePixels.map((data, index) => (

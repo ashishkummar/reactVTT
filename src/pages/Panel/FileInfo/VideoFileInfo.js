@@ -1,10 +1,39 @@
 import React, { useEffect, useState } from 'react';
 
-const baseUrl =
-  'https://cdnx-mock.tribalfusion.com/mockmedia/600028402//assets/';
+let baseUrl = 'https://cdnx-mock.tribalfusion.com/mockmedia/600028402//assets/';
+
+const formatBytes = (bytes, decimals = 2) => {
+  if (bytes === 0) return '0 Bytes';
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+};
+
+function formatDuration(duration) {
+  const hours = Math.floor(duration / 3600);
+  const minutes = Math.floor((duration % 3600) / 60);
+  const seconds = Math.floor(duration % 60);
+  const milliseconds = Math.floor((duration % 1) * 1000);
+
+  const formattedHours = hours.toString().padStart(2, '0');
+  const formattedMinutes = minutes.toString().padStart(2, '0');
+  const formattedSeconds = seconds.toString().padStart(2, '0');
+  const formattedMilliseconds = milliseconds.toString().padStart(3, '0');
+
+  return `${formattedHours}:${formattedMinutes}:${formattedSeconds}.${formattedMilliseconds}`;
+}
 
 export default function VideoFileInfo(prop) {
   const [fileSize, setFileSize] = useState(null);
+
+  var port = chrome.runtime.connect({
+    name: 'tab_' + chrome.devtools.inspectedWindow.tabId,
+  });
 
   // listen for tab updates
   chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
@@ -17,53 +46,125 @@ export default function VideoFileInfo(prop) {
     }
   });
 
+  let moreFiles = true;
+  let counter = 1;
+  const fileSizes = [];
+
   useEffect(() => {
-    let moreFiles = true;
-    let counter = 1;
-    const fileSizes = [];
+    function handlePortMessage(msg) {
+      try {
+        if (msg.videoURL !== undefined) {
+          baseUrl = msg.videoURL.split('/assets/')[0] + '/assets/';
+
+          fetchFile();
+        }
+      } catch (err) {
+        console.log('errInfo from video quartile ', err, 'msg  = ', msg);
+      }
+    }
+
+    // add the listener once when the component mounts
+    port.onMessage.addListener(handlePortMessage);
+
+    return () => {
+      port.onMessage.removeListener(handlePortMessage);
+    };
 
     function fetchFile() {
       if (!moreFiles) {
         // console.log('No more files found.');
-        // console.log('File sizes:', fileSizes);
+
         setFileSize(fileSizes);
         return;
       }
 
       const url = `${baseUrl}video${counter}.mp4`;
+
+      // Fetch file size
       fetch(url)
         .then((response) => {
           if (response.ok) {
             const fileSize = response.headers.get('Content-Length');
-            fileSizes.push(fileSize);
-            counter++;
-            fetchFile();
+            // Fetch file duration
+            fetch(url)
+              .then((durationResponse) => {
+                if (durationResponse.ok) {
+                  durationResponse.blob().then((blob) => {
+                    const video = document.createElement('video');
+                    video.src = URL.createObjectURL(blob);
+                    video.addEventListener('loadedmetadata', () => {
+                      const fileDuration = video.duration;
+                      fileSizes.push({
+                        size: fileSize,
+                        duration: fileDuration,
+                      });
+                      counter++;
+                      fetchFile();
+                    });
+                    video.addEventListener('error', (error) => {
+                      console.error('Error fetching file duration:', error);
+                      moreFiles = false;
+                      counter++;
+                      fetchFile();
+                    });
+                    video.load();
+                  });
+                } else {
+                  console.error(
+                    'Error fetching file duration:',
+                    durationResponse.status
+                  );
+                  moreFiles = false;
+                  counter++;
+                  fetchFile();
+                }
+              })
+              .catch((error) => {
+                console.error('Error fetching file duration:', error);
+                moreFiles = false;
+                counter++;
+                fetchFile();
+              });
           } else {
             moreFiles = false;
+            counter++;
             fetchFile();
           }
         })
         .catch((error) => {
           console.error('Error fetching file:', error);
+          moreFiles = false;
           counter++;
           fetchFile();
         });
     }
-
-    if (prop.vidURL[0].videoURL !== undefined) {
-      fetchFile();
-    }
-
-    return () => {
-      moreFiles = false;
-    };
-  }, [prop.vidURL]);
-
+  }, []);
   return (
     <div>
-      VideoFileInfo {new Date().getTime()}
-      <div style={{ height: '100px', border: '1px solid', overflow: 'auto' }}>
-        {fileSize !== null ? `File size: ${fileSize} bytes` : ''}
+      VideoFileInfo
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          height: '100px',
+          border: '1px solid',
+          overflow: 'auto',
+        }}
+      >
+        {Array.isArray(fileSize) && fileSize.length > 0 ? (
+          fileSize.map((data, index) => {
+            return (
+              <span key={index}>
+                Video {index + 1} = {formatBytes(data.size)} | Duration :{' '}
+                {formatDuration(data.duration)}
+                <br />
+              </span>
+            );
+          })
+        ) : (
+          <span>loading...</span>
+        )}
       </div>
     </div>
   );

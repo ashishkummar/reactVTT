@@ -6,6 +6,7 @@ import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-github_dark';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/ext-searchbox';
+import CompareETPixels from './CompareETPixels';
 
 import {
   Button,
@@ -80,6 +81,14 @@ export default function CheckPixels(prop) {
 
   useEffect(() => {
     function onTabUpdated(tabId, changeInfo, tab) {
+      if (
+        tabId === chrome.devtools.inspectedWindow.tabId &&
+        changeInfo.status === 'loading'
+      ) {
+        // setIntLives([]);
+        // setClickLives([]);
+      }
+      //
       if (changeInfo.url) {
         setPageStatus('new');
         port.postMessage({
@@ -161,18 +170,38 @@ export default function CheckPixels(prop) {
   return (
     <>
       {' '}
-      <button onClick={showModal}>
-        e
-        {/*intLives.ints.length !== 0 &&
-          data.clickLives.clicks.length + ' | ' + data.intLives.ints.length*/}
-      </button>
+      {
+        <div
+          style={{ cursor: 'pointer' }}
+          className="badge badge-info"
+          onClick={showModal}
+        >
+          {/* 
+          <div
+            className="spinner-grow spinner-grow-sm"
+            role="status"
+            aria-hidden="true"
+          ></div>
+        */}
+          {prop.pixelType === 'intLive' ? intLives.length : clickLives.length}
+        </div>
+      }
       <Modal show={isOpen} onHide={hideModal}>
         <Modal.Header>
           <Modal.Title>IntLive and clickLive Pixels</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {/*console.log('intLives updated:----', clickLives, intLives) */}
-          <div style={{ width: '100%', height: '500px', overflow: 'scroll' }}>
+          <div
+            style={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              height: '450px',
+              overflow: 'scroll',
+            }}
+          >
             {intLives !== undefined
               ? intLives.map((data, index) => {
                   return (
@@ -182,12 +211,11 @@ export default function CheckPixels(prop) {
                         style={
                           data.checked
                             ? {
-                                cursor: 'pointer',
                                 display: 'inline-block',
                                 whiteSpace: 'nowrap',
-                                width: '200px',
-                                backgroundColor: 'skyblue',
 
+                                background: 'green',
+                                color: 'white',
                                 transition:
                                   'background-color .5s cubic-bezier(0.03, 0.33, 0, 0.97)',
                               }
@@ -212,8 +240,9 @@ export default function CheckPixels(prop) {
                                 cursor: 'pointer',
                                 display: 'inline-block',
                                 whiteSpace: 'nowrap',
-                                width: '200px',
-                                backgroundColor: 'pink',
+
+                                background: 'blue',
+                                color: 'white',
                                 transition:
                                   'background-color .5s cubic-bezier(0.03, 0.33, 0, 0.97)',
                               }
@@ -229,6 +258,9 @@ export default function CheckPixels(prop) {
           </div>
         </Modal.Body>
         <Modal.Footer>
+          {clickLives.length !== 0 && (
+            <CompareETPixels clickLives={clickLives} intLives={intLives} />
+          )}
           <Button onClick={hideModal}>Cancel</Button>
           <Button onClick={showAceModal}>View/Edit 'designer-config.js'</Button>
         </Modal.Footer>
