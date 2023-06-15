@@ -8,7 +8,7 @@ import VideoFileInfo from './FileInfo/VideoFileInfo';
 import ImageFileInfo from './FileInfo/ImageFileInfo';
 import Footer from './Footer';
 import CheckPixels from './Pixels/CheckPixels';
-import { fetchDataFile, storeDesiDataFile } from './fetchFiles.js';
+
 import { DataContextProvider } from './Data/DataContext';
 
 const MemoizedVideoQuartiles = memo(VideoQuartiles);
@@ -21,46 +21,22 @@ const MemoizedFooter = memo(Footer);
 function Panel() {
   const [desiAPIurl, setDesiAPIurl] = useState('');
 
-  var port = chrome.runtime.connect({
-    name: 'tab_' + chrome.devtools.inspectedWindow.tabId,
-  });
-
-  useEffect(() => {
-    let si;
-    function handlePortMessage(msg) {
-      try {
-        if (msg.desiConfURL !== undefined) {
-          setDesiAPIurl(msg.desiConfURL);
-        }
-      } catch (err) {
-        //console.log('errInfo from video quartile ', err, 'msg  = ', msg);
-      }
-    }
-
-    // add the listener once when the component mounts
-    port.onMessage.addListener(handlePortMessage);
-
-    return () => {
-      port.onMessage.removeListener(handlePortMessage);
-    };
-  }, []);
-
-  // clean up the listener when the component unmounts or page refreshes
-  window.addEventListener('beforeunload', () => {
-    // port.onMessage.removeListener(handlePortMessage);
-  });
-
   return (
     <div className="container">
-      <DataContextProvider url={desiAPIurl}>
-        <Header />
-        <MemoizedVideoQuartiles />
-        <MemoizedIntLive />
-        <MemoizedClickLive />
-        {<MemoizedImageFiles />}
-        <MemoizedVideoFiles />
-        <MemoizedFooter />
+      {<Header />}
+      {<MemoizedVideoQuartiles />}
+      <DataContextProvider>
+        {<CheckPixels pixelType="intLive" />}
       </DataContextProvider>
+      {<MemoizedIntLive />}
+
+      {/*  <DataContextProvider>
+        {<CheckPixels pixelType="clickLive" />}
+      </DataContextProvider> */}
+      {<MemoizedClickLive />}
+      {/*  {<MemoizedImageFiles />}
+      {<MemoizedVideoFiles />}
+      {<MemoizedFooter />} */}
     </div>
   );
 }

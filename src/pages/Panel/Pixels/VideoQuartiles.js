@@ -13,46 +13,54 @@ export default function VideoQuartiles(props) {
   }, [VideoPixels]);
 
   useEffect(() => {
-    function handlePortMessage(msg) {
-      try {
-        if (msg.video !== undefined) {
-          setVideoPixels((prevState) => [...prevState, { msg }]);
-        }
-      } catch (err) {
-        //console.log('errInfo from video quartile ', err, 'msg  = ', msg);
+    const onUpdate = (tabId, changeInfo, tab) => {
+      if (
+        tabId === chrome.devtools.inspectedWindow.tabId &&
+        changeInfo.status === 'loading'
+      ) {
+        // console.log('REFR');
+        setVideoPixels([{}]);
       }
-    }
+    };
+    chrome.tabs.onUpdated.addListener(onUpdate);
 
     // add the listener once when the component mounts
     port.onMessage.addListener(handlePortMessage);
 
     return () => {
       port.onMessage.removeListener(handlePortMessage);
+      port.disconnect();
+      chrome.tabs.onUpdated.removeListener(onUpdate);
     };
   }, []);
+
+  function handlePortMessage(msg) {
+    try {
+      if (msg.video !== undefined) {
+        setVideoPixels((prevState) => [...prevState, { msg }]);
+      }
+    } catch (err) {
+      //console.log('errInfo from video quartile ', err, 'msg  = ', msg);
+    }
+  }
 
   // clean up the listener when the component unmounts or page refreshes
   window.addEventListener('beforeunload', () => {
     //port.onMessage.removeListener(handlePortMessage);
   });
 
-  const onUpdate = (tabId, changeInfo, tab) => {
-    if (
-      tabId === chrome.devtools.inspectedWindow.tabId &&
-      changeInfo.status === 'loading'
-    ) {
-      // console.log('REFR');
-      setVideoPixels([{}]);
-    }
-    chrome.tabs.onUpdated.removeListener(onUpdate);
-  };
-  chrome.tabs.onUpdated.addListener(onUpdate);
-
   return (
     <div>
-      VideoQuartiles:{new Date().getTime()}
+      Video Quartiles
       {
-        <div style={{ height: '100px', border: '1px solid', overflow: 'auto' }}>
+        <div
+          style={{
+            height: '80px',
+            padding: '3px',
+            border: '1px solid',
+            overflow: 'auto',
+          }}
+        >
           {VideoPixels.length !== 0
             ? VideoPixels.map((data, index) => (
                 <div key={index}>

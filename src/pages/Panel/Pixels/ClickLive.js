@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import FetchDesiConf from '../JsParsing/FetchDesiConf';
 import CheckPixels from './CheckPixels';
+import { DataContextProvider } from '../Data/DataContext';
 
 export default function ClickLive(prop) {
   const messagesEndRef = useRef(null);
@@ -15,13 +16,23 @@ export default function ClickLive(prop) {
   }, [ClicklivePixels]);
 
   useEffect(() => {
+    const onUpdate = (tabId, changeInfo, tab) => {
+      if (
+        tabId === chrome.devtools.inspectedWindow.tabId &&
+        changeInfo.status === 'loading'
+      ) {
+        setClicklivePixels([{}]);
+      }
+    };
+    chrome.tabs.onUpdated.addListener(onUpdate);
+
     function handlePortMessage(msg) {
       try {
         if (msg.pixel.clickLive !== undefined) {
           setClicklivePixels((prevState) => [...prevState, { msg }]);
         }
       } catch (err) {
-        //console.log('errInfo from video quartile ', err, 'msg  = ', msg);
+        // console.log('errInfo from  ', err, 'msg  = ', msg);
       }
     }
 
@@ -30,32 +41,44 @@ export default function ClickLive(prop) {
 
     return () => {
       port.onMessage.removeListener(handlePortMessage);
+      chrome.tabs.onUpdated.removeListener(onUpdate);
     };
   }, []);
 
-  // clean up the listener when the component unmounts or page refreshes
-  window.addEventListener('beforeunload', () => {
-    //port.onMessage.removeListener(handlePortMessage);
-  });
-
-  const onUpdate = (tabId, changeInfo, tab) => {
-    if (
-      tabId === chrome.devtools.inspectedWindow.tabId &&
-      changeInfo.status === 'loading'
-    ) {
-      console.log('REFR');
-      setClicklivePixels([{}]);
-    }
-    chrome.tabs.onUpdated.removeListener(onUpdate);
-  };
-  chrome.tabs.onUpdated.addListener(onUpdate);
+  function clearPixsHandler() {
+    setClicklivePixels([{}]);
+  }
 
   return (
     <>
-      ClickLive
-      {<CheckPixels pixelType="clickLive" />}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+          }}
+        >
+          <div>Click Lives &nbsp;</div>{' '}
+        </div>
+        <div onClick={clearPixsHandler}>Clear</div>
+      </div>
+
       <div style={{ display: 'flex', flexDirection: 'row' }}></div>
-      <div style={{ height: '100px', border: '1px solid', overflow: 'auto' }}>
+      <div
+        style={{
+          height: '110px',
+          padding: '3px',
+          border: '1px solid',
+          overflow: 'auto',
+          color: 'blue',
+        }}
+      >
         {ClicklivePixels.length !== 0
           ? ClicklivePixels.map((data, index) => (
               <div key={index}>

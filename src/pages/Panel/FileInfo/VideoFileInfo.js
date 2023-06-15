@@ -31,20 +31,15 @@ function formatDuration(duration) {
 export default function VideoFileInfo(prop) {
   const [fileSize, setFileSize] = useState(null);
 
-  var port = chrome.runtime.connect({
-    name: 'tab_' + chrome.devtools.inspectedWindow.tabId,
-  });
-
-  // listen for tab updates
-  chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-    // check if the updated tab is the current tab
+  const onUpdate = (tabId, changeInfo, tab) => {
     if (
       tabId === chrome.devtools.inspectedWindow.tabId &&
       changeInfo.status === 'loading'
     ) {
       setFileSize('');
     }
-  });
+  };
+  chrome.tabs.onUpdated.addListener(onUpdate);
 
   let moreFiles = true;
   let counter = 1;
@@ -63,11 +58,17 @@ export default function VideoFileInfo(prop) {
       }
     }
 
+    var port = chrome.runtime.connect({
+      name: 'tab_' + chrome.devtools.inspectedWindow.tabId,
+    });
+
     // add the listener once when the component mounts
     port.onMessage.addListener(handlePortMessage);
 
     return () => {
       port.onMessage.removeListener(handlePortMessage);
+      port.disconnect();
+      chrome.tabs.onUpdated.removeListener(onUpdate);
     };
 
     function fetchFile() {
@@ -141,15 +142,13 @@ export default function VideoFileInfo(prop) {
   }, []);
   return (
     <div>
-      VideoFileInfo
+      Video Size and Duration
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          height: '100px',
+          height: '95px',
           border: '1px solid',
           overflow: 'auto',
+          padding: '4px',
         }}
       >
         {Array.isArray(fileSize) && fileSize.length > 0 ? (
@@ -163,7 +162,7 @@ export default function VideoFileInfo(prop) {
             );
           })
         ) : (
-          <span>loading...</span>
+          <span> </span>
         )}
       </div>
     </div>

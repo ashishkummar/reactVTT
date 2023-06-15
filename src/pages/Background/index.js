@@ -1,7 +1,7 @@
 let desiURLfound = false;
 let userReload = false;
-var currentUrl = null;
-var editedDesiConf = '';
+let currentUrl = null;
+let editedDesiConf = '';
 
 chrome.webRequest.onBeforeRequest.addListener(
   function (details) {
@@ -28,8 +28,6 @@ chrome.webRequest.onHeadersReceived.addListener(
   function (details) {
     //CLICKLIVE
     if (details.url.indexOf('clickLive') != -1 && details.statusCode == 200) {
-      console.log('clickLive ', details.url);
-
       if (getParameterByName('custom4', details.url).indexOf('id:') != -1) {
         notifyDevtools({
           pixel: {
@@ -38,8 +36,6 @@ chrome.webRequest.onHeadersReceived.addListener(
           },
         });
       } else {
-        console.log('~~~~~~~ ', getParameterByName('custom1', details.url));
-
         notifyDevtools({
           pixel: {
             clickLive: getParameterByName('custom1', details.url),
@@ -50,9 +46,11 @@ chrome.webRequest.onHeadersReceived.addListener(
     }
 
     //INTLIVE
+
     if (details.url.indexOf('intLive') != -1 && details.statusCode == 200) {
+      console.info(getParameterByName('custom4', details.url));
+
       if (getParameterByName('custom4', details.url).indexOf('id:') != -1) {
-        console.info('SE');
         notifyDevtools({
           pixel: {
             intLive: getParameterByName('custom4', details.url),
@@ -114,11 +112,14 @@ chrome.webRequest.onHeadersReceived.addListener(
           // console.log(fetchScript(details.url));
           //window.desifilegot = true;
         }
-        console.log(details.url);
+        //console.log(details.url);
         // if (!userReload) {
-        notifyDevtools({
-          desiConfURL: details.url,
-        });
+        if (details.url.indexOf('?cacheBurst') === -1) {
+          notifyDevtools({
+            desiConfURL: details.url,
+          });
+        }
+
         // userReload = true;
         // }
       }
@@ -136,10 +137,73 @@ chrome.webRequest.onHeadersReceived.addListener(
 );
 /////////////////////////////////////////////////////////////////////////////////////
 
+/* var ports = [];
+let windowId;
+let activeTabId;
+
+// Function to send a message to the DevTools panel
+function notifyDevtools(msg) {
+  ports.forEach(function (port) {
+    if (port.name === activeTabId) {
+      port.postMessage(msg);
+    }
+  });
+}
+
+chrome.windows.getCurrent(function (currentWindow) {
+  windowId = 'win_' + currentWindow.id;
+});
+
+chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+  activeTabId = 'tab_' + tabs[0].id;
+});
+
+chrome.runtime.onConnect.addListener(function (port) {
+  ports.push(port);
+
+  // Remove port when destroyed (e.g., when the DevTools instance is closed)
+  port.onDisconnect.addListener(function () {
+    var i = ports.indexOf(port);
+    if (i !== -1) ports.splice(i, 1);
+  });
+
+  port.onMessage.addListener(function (request) {
+    // Received message from the DevTools panel. Do something:
+    console.log('Received message from DevTools page', request);
+    if (request.reload) {
+      userReload = true;
+      editedDesiConf = request.editedDesiConf;
+      chrome.tabs.reload();
+    } else {
+      editedDesiConf = '';
+    }
+  });
+});
+ */
 var ports = [];
 let _activeTabIDBG = 'vdxVTTtool';
-var tabId;
-var windowId;
+let tabId;
+let windowId;
+
+function notifyDevtools(msg) {
+  // find the relevant panel and send message.
+
+  ports.forEach(function (port) {
+    if (port.name === tabId) {
+      port.postMessage(msg);
+    }
+  });
+
+  /*  ports.forEach(function (port) {
+    chrome.windows.getCurrent(function (w) {
+      chrome.tabs.query({ active: true }, (tabs) => {
+        if (tabId == port.name) {
+          port.postMessage(msg);
+        }
+      });
+    });
+  }); */
+}
 
 chrome.windows.getCurrent(function (currentWindow) {
   windowId = 'win_' + currentWindow.id;
@@ -186,18 +250,6 @@ function notifyBackgroundJs(msgdata, medId) {
 
 // Function to receive a message from panel
 
-function notifyDevtools(msg) {
-  // find the relevant panel and send message.
-  ports.forEach(function (port) {
-    chrome.windows.getCurrent(function (w) {
-      chrome.tabs.query({ active: true }, (tabs) => {
-        if (tabId == port.name) {
-          port.postMessage(msg);
-        }
-      });
-    });
-  });
-}
 // end of message to panel
 
 //
@@ -211,48 +263,3 @@ function getParameterByName(name, url) {
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 ////////////
-
-let DesiDataFile = [];
-let url = '';
-
-function getDesiDataFile() {
-  return new Promise((resolve, reject) => {
-    resolve(DesiDataFile);
-  });
-}
-
-async function fetchScript(url) {
-  const response = await fetch(url);
-  const scriptText = await response.text();
-  const extractedPixels = extractText(scriptText);
-  notifyDevtools({ desiConfDATA: extractedPixels });
-
-  //console.log(extractedPixels);
-}
-
-const extractText = (text) => {
-  const regex = /Expo\.designerAPI\.firePixel\((.*?)\)/g;
-  const matches = text.matchAll(regex);
-  const pixels = [];
-  for (const match of matches) {
-    pixels.push(match[1]);
-  }
-
-  const clickLives = [];
-  const intLives = [];
-
-  pixels.forEach((data, index) => {
-    if (data.split(',')[1].indexOf('clickLive') !== -1) {
-      clickLives.push(data.split(',')[0].split('"').join(''));
-    } else {
-      intLives.push(data.split(',')[0].split('"').join(''));
-    }
-  });
-
-  return { clickLives, intLives };
-};
-
-function fetchDataFile(url) {
-  console.log('fetchDataFile ...', url);
-  return fetchScript(url);
-}

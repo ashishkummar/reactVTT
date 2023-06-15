@@ -69,9 +69,6 @@ export default function ImageFileInfo(prop) {
     return trimmedString;
   };
 
-  var port = chrome.runtime.connect({
-    name: 'tab_' + chrome.devtools.inspectedWindow.tabId,
-  });
   let images = [];
   useEffect(() => {
     function handlePortMessage(msg) {
@@ -89,11 +86,16 @@ export default function ImageFileInfo(prop) {
       }
     }
 
+    var port = chrome.runtime.connect({
+      name: 'tab_' + chrome.devtools.inspectedWindow.tabId,
+    });
+
     // add the listener once when the component mounts
     port.onMessage.addListener(handlePortMessage);
 
     return () => {
       port.onMessage.removeListener(handlePortMessage);
+      port.disconnect();
     };
   }, []);
 

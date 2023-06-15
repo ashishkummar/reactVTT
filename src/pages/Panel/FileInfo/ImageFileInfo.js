@@ -7,6 +7,17 @@ export default function ImageFileInfo() {
   const uniqueURLs = useRef(new Set());
 
   useEffect(() => {
+    const onUpdate = (tabId, changeInfo, tab) => {
+      if (
+        tabId === chrome.devtools.inspectedWindow.tabId &&
+        changeInfo.status === 'loading'
+      ) {
+        uniqueURLs.current.clear();
+        setSortedImages([]);
+      }
+    };
+    chrome.tabs.onUpdated.addListener(onUpdate);
+
     const handlePortMessage = async (msg) => {
       try {
         if (msg.imgURL !== undefined) {
@@ -37,20 +48,10 @@ export default function ImageFileInfo() {
 
     return () => {
       port.onMessage.removeListener(handlePortMessage);
+      port.disconnect();
+      chrome.tabs.onUpdated.removeListener(onUpdate);
     };
   }, []);
-
-  const onUpdate = (tabId, changeInfo, tab) => {
-    if (
-      tabId === chrome.devtools.inspectedWindow.tabId &&
-      changeInfo.status === 'loading'
-    ) {
-      uniqueURLs.current.clear();
-      setSortedImages([]);
-    }
-    chrome.tabs.onUpdated.removeListener(onUpdate);
-  };
-  chrome.tabs.onUpdated.addListener(onUpdate);
 
   function getFileNameFromURL(url) {
     const segments = url.split('/');
@@ -118,10 +119,10 @@ export default function ImageFileInfo() {
           padding: '5px',
           minHeight: '100px',
           height: '100px',
-          maxHeight: '200px',
+          //maxHeight: '200px',
           border: '1px solid',
           overflow: 'auto',
-          resize: 'vertical',
+          //resize: 'vertical',
         }}
       >
         {sortedImagesBySize.length > 0 && (

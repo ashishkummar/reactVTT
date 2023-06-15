@@ -7,8 +7,6 @@ export default function FetchDesiConf(prop) {
   const [pixels, setPixels] = useState({ clickLives: [], intLives: [] });
   //
 
-  //setPixels(getDesiDataFile());
-
   // listen for tab updates
   chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
     // check if the updated tab is the current tab

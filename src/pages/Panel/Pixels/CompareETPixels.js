@@ -48,7 +48,7 @@ export default function CompareETPixels(prop) {
         var temp = document.createElement('div');
 
         _etPxls +=
-          "<span class='text-liteColor'>" +
+          "<span className='text-liteColor'>" +
           objPixel[i].description +
           '</span><br>';
       }
@@ -171,7 +171,7 @@ export default function CompareETPixels(prop) {
           <button
             onClick={hideModal}
             type="button"
-            class="close"
+            className="close"
             data-dismiss="modal"
             aria-label="Close"
           >
@@ -228,7 +228,7 @@ export default function CompareETPixels(prop) {
             inputMode="numeric"
             pattern="[0-9]*"
             size="6"
-            maxlength="6"
+            maxLength="6"
             className="form-control"
             id="ETpixTXT"
             placeholder="Enter ET ID"
@@ -237,7 +237,12 @@ export default function CompareETPixels(prop) {
           />
 
           <div className="input-group-append">
-            <Button onClick={compareListener} id="compareETpix" type="button">
+            <Button
+              className="btn btn-secondary"
+              onClick={compareListener}
+              id="compareETpix"
+              type="button"
+            >
               <span
                 className="d-none spinner-grow spinner-grow-sm"
                 role="status"

@@ -3,10 +3,6 @@ import React, { useEffect, useState } from 'react';
 export default function Footer(prop) {
   const [buildState, setBuildState] = useState('');
 
-  var port = chrome.runtime.connect({
-    name: 'tab_' + chrome.devtools.inspectedWindow.tabId,
-  });
-
   // listen for tab updates
   chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
     // check if the updated tab is the current tab
@@ -19,6 +15,18 @@ export default function Footer(prop) {
   });
 
   useEffect(() => {
+    var port = chrome.runtime.connect({
+      name: 'tab_' + chrome.devtools.inspectedWindow.tabId,
+    });
+
+    // add the listener once when the component mounts
+    port.onMessage.addListener(handlePortMessage);
+
+    return () => {
+      port.onMessage.removeListener(handlePortMessage);
+      port.disconnect();
+    };
+
     function handlePortMessage(msg) {
       try {
         if (msg.PubDemopagesURL !== undefined) {
@@ -28,13 +36,6 @@ export default function Footer(prop) {
         console.log('errInfo from video quartile ', err, 'msg  = ', msg);
       }
     }
-
-    // add the listener once when the component mounts
-    port.onMessage.addListener(handlePortMessage);
-
-    return () => {
-      port.onMessage.removeListener(handlePortMessage);
-    };
 
     function fetchFile(url) {
       fetch(url)
@@ -54,7 +55,14 @@ export default function Footer(prop) {
 
   return (
     <>
-      <div className="fixed-bottom" style={{ padding: '2px' }}>
+      <div
+        className="fixed-bottom"
+        style={
+          {
+            //padding: '1px'
+          }
+        }
+      >
         {buildState !== '' ? (
           buildState.includes('VDX') ? (
             <div className="badge badge-success">{buildState}</div>

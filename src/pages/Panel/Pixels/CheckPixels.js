@@ -7,108 +7,146 @@ import 'ace-builds/src-noconflict/theme-github_dark';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/ext-searchbox';
 import CompareETPixels from './CompareETPixels';
+import { AiOutlineFile, AiOutlineCodeSandbox } from 'react-icons/ai';
+import { MdRefresh, MdEditNote, MdOutlineAnimation } from 'react-icons/md';
+import { BsArrowUpRightSquare } from 'react-icons/bs';
 
-import {
-  Button,
-  ModalFooter,
-  ModalBody,
-  ModalHeader,
-  Modal,
-  ModalTitle,
-} from 'react-bootstrap';
+import { Button, Modal, NavDropdown } from 'react-bootstrap';
 
 export default function CheckPixels(prop) {
   const editorRef = useRef();
-
+  const [isCompOpen, setIsCompOpen] = useState(false);
   const { data, loading } = useContext(DataContext);
   const [intLives, setIntLives] = useState([]);
   const [clickLives, setClickLives] = useState([]);
+  //
   const [isOpen, setIsOpen] = useState(false);
-
   const [isAceOpen, setIsAceOpen] = useState(false);
   const [desiApiData, setDesiApiData] = useState('Loading Designer API...');
   const [editStatus, setEditStatus] = useState(false);
   const [pageStatus, setPageStatus] = useState('');
 
-  var port = chrome.runtime.connect({
+  let port = chrome.runtime.connect({
     name: 'tab_' + chrome.devtools.inspectedWindow.tabId,
   });
 
-  ///
   useEffect(() => {
+    const handleTabLoad = (tabId) => {
+      console.log(`Tab ${tabId} loaded`, data[0].intLives.length);
+      // Perform your logic here for tab load event
+    };
+
+    const handleTabReload = (tabId, changeInfo) => {
+      if (changeInfo.status === 'loading') {
+        console.log(`Tab ${tabId} reloaded`);
+        // Perform your logic here for tab reload event
+      }
+    };
+
+    const handleTabUpdated = (tabId, changeInfo) => {
+      if (changeInfo.status === 'complete') {
+        handleTabLoad(tabId);
+      }
+    };
+
+    // Add event listeners for tab load and tab reload
+    chrome.tabs.onUpdated.addListener(handleTabUpdated);
+    chrome.tabs.onReplaced.addListener(handleTabLoad);
+
+    // Clean up event listeners
+    return () => {
+      chrome.tabs.onUpdated.removeListener(handleTabUpdated);
+      chrome.tabs.onReplaced.removeListener(handleTabLoad);
+    };
+  }, []);
+
+  // Trigger once
+  useEffect(() => {
+    console.log('Initial Data loaded in CheckPixel', data[0].intLives.length);
+
+    //
     setIntLives(data[0].intLives);
     setClickLives(data[0].clickLives);
-  }, [data[0].clickLives, data[0].intLives]);
 
-  port.onMessage.addListener(handlePortMessage);
+    chrome.tabs.onUpdated.addListener(onTabUpdated);
+    console.log('port.onMessage, chrome.tabs is set and ready....');
+
+    return () => {
+      chrome.tabs.onUpdated.removeListener(onTabUpdated);
+
+      port.onMessage.removeListener(handlePortMessage);
+      port.disconnect();
+      chrome.tabs.onUpdated.removeListener(onTabUpdated);
+    };
+  }, [data]);
+
+  ///
+
+  useEffect(() => {
+    port.onMessage.addListener(handlePortMessage);
+    return () => {
+      port.disconnect();
+      // port.onMessage.removeListener(handlePortMessage);
+    };
+  }, [data]);
+
+  useEffect(() => {
+    console.log('intLives updated');
+  }, [intLives]);
+
   function handlePortMessage(msg) {
     if (msg.pixel !== undefined) {
       if (msg.pixel.intLive !== undefined) {
         let pxl = msg.pixel.intLive.match(/id:(.*?);/)[1];
+
+        let found = false;
         const updatedIntLives = intLives.map((data, index) => {
-          if (data.ints === pxl) {
+          if (!found && data.ints === pxl && data.checked == false) {
             data.checked = true;
+            found = true;
           }
           return data;
         });
+
         setIntLives(updatedIntLives);
+        //  console.log('    : setIntLives ', updatedIntLives, pxl);
       }
 
       if (msg.pixel.clickLive !== undefined) {
         let pxl2 = msg.pixel.clickLive.match(/id:(.*?);/)[1];
+        let ctafound = false;
         const updatedClickLives = clickLives.map((data, index) => {
-          if (data.clicks === pxl2) {
+          if (!ctafound && data.clicks === pxl2 && data.checked == false) {
             data.checked = true;
+            ctafound = true;
           }
           return data;
         });
         setClickLives(updatedClickLives);
       }
-
-      port.onMessage.removeListener(handlePortMessage);
     }
   }
 
-  window.addEventListener('beforeunload', () => {
-    //  port.onMessage.removeListener(handlePortMessage);
-  });
-
-  let activeTabId = -1;
-
-  chrome.tabs.onActivated.addListener((activeInfo) => {
-    activeTabId = activeInfo.tabId;
-  });
-
-  useEffect(() => {
-    function onTabUpdated(tabId, changeInfo, tab) {
-      if (
-        tabId === chrome.devtools.inspectedWindow.tabId &&
-        changeInfo.status === 'loading'
-      ) {
-        // setIntLives([]);
-        // setClickLives([]);
-      }
-      //
-      if (changeInfo.url) {
-        setPageStatus('new');
-        port.postMessage({
-          reload: false,
-          editedDesiConf: '',
-        });
-        //console.log('new');
-      }
+  function onTabUpdated(tabId, changeInfo, tab) {
+    if (
+      tabId === chrome.devtools.inspectedWindow.tabId &&
+      changeInfo.status === 'loading'
+    ) {
+      console.log('  Cleared setIntLives and setClickLives....');
+      setIntLives([]);
+      setClickLives([]);
     }
-
-    chrome.tabs.onUpdated.addListener(onTabUpdated);
-
-    return () => {
-      chrome.tabs.onUpdated.removeListener(onTabUpdated);
-    };
-  }, []);
+    //
+    if (changeInfo.url) {
+      setPageStatus('new');
+      port.postMessage({
+        reload: false,
+        editedDesiConf: '',
+      });
+    }
+  }
 
   useEffect(() => {
-    console.log('PageStatus- ', pageStatus);
-
     if (pageStatus === 'new') {
       if (data[1].desiAPIdata.search('<!DOCTYPE html>') == -1) {
         setDesiApiData(data[1].desiAPIdata);
@@ -120,7 +158,7 @@ export default function CheckPixels(prop) {
   }, [data[1].desiAPIdata]);
 
   //
-  //////
+
   const showModal = () => {
     setIsOpen(true);
   };
@@ -128,8 +166,6 @@ export default function CheckPixels(prop) {
   const hideModal = () => {
     setIsOpen(false);
   };
-
-  ///// Ace Editor -------------------------
 
   function onAceChange(newValue) {
     setPageStatus('refresh');
@@ -161,21 +197,33 @@ export default function CheckPixels(prop) {
     setEditStatus(true);
   };
 
-  //////////////
   // Call scrollIntoView when the transition starts
   const bringInView = (e) => {
     e.target.scrollIntoView({ behavior: 'smooth' });
   };
 
+  function openDcListener() {
+    window.open(data[1].url);
+  }
+
+  function downloadDcListener() {
+    const anchor = document.createElement('a');
+    anchor.href = data[1].url;
+    anchor.download = data[1].url.substring(data[1].url.lastIndexOf('/') + 1);
+    anchor.style.display = 'none';
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+  }
+
+  const handleCompButtonClick = () => {
+    setIsCompOpen(!isCompOpen);
+  };
+
   return (
     <>
-      {' '}
       {
-        <div
-          style={{ cursor: 'pointer' }}
-          className="badge badge-info"
-          onClick={showModal}
-        >
+        <div style={{ cursor: 'pointer' }} onClick={showModal}>
           {/* 
           <div
             className="spinner-grow spinner-grow-sm"
@@ -183,12 +231,27 @@ export default function CheckPixels(prop) {
             aria-hidden="true"
           ></div>
         */}
-          {prop.pixelType === 'intLive' ? intLives.length : clickLives.length}
+          {prop.pixelType === 'intLive'
+            ? intLives.length !== 0 && (
+                <span className="badge badge-success">{intLives.length}</span>
+              )
+            : clickLives.length !== 0 && (
+                <span className="badge badge-primary">{clickLives.length}</span>
+              )}
         </div>
       }
       <Modal show={isOpen} onHide={hideModal}>
         <Modal.Header>
           <Modal.Title>IntLive and clickLive Pixels</Modal.Title>
+          <button
+            onClick={hideModal}
+            type="button"
+            className="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
         </Modal.Header>
         <Modal.Body>
           {/*console.log('intLives updated:----', clickLives, intLives) */}
@@ -213,11 +276,10 @@ export default function CheckPixels(prop) {
                             ? {
                                 display: 'inline-block',
                                 whiteSpace: 'nowrap',
-
                                 background: 'green',
                                 color: 'white',
                                 transition:
-                                  'background-color .5s cubic-bezier(0.03, 0.33, 0, 0.97)',
+                                  'background-color .2s cubic-bezier(0.03, 0.33, 0, 0.97)',
                               }
                             : {}
                         }
@@ -240,11 +302,10 @@ export default function CheckPixels(prop) {
                                 cursor: 'pointer',
                                 display: 'inline-block',
                                 whiteSpace: 'nowrap',
-
                                 background: 'blue',
                                 color: 'white',
                                 transition:
-                                  'background-color .5s cubic-bezier(0.03, 0.33, 0, 0.97)',
+                                  'background-color .2s cubic-bezier(0.03, 0.33, 0, 0.97)',
                               }
                             : {}
                         }
@@ -261,14 +322,35 @@ export default function CheckPixels(prop) {
           {clickLives.length !== 0 && (
             <CompareETPixels clickLives={clickLives} intLives={intLives} />
           )}
-          <Button onClick={hideModal}>Cancel</Button>
-          <Button onClick={showAceModal}>View/Edit 'designer-config.js'</Button>
+
+          <Button onClick={showAceModal}>
+            {' '}
+            <MdEditNote /> Edit Designer Config
+          </Button>
         </Modal.Footer>
       </Modal>
       {/*<EditDC AceState={showACEModal} DAPIDATA={data[1].desiAPIdata} />*/}
       <Modal dialogClassName="modal-lg" show={isAceOpen} onHide={hideAceModal}>
         <Modal.Header>
-          <Modal.Title>Edit</Modal.Title>
+          <Modal.Title>
+            Designer-Config{' '}
+            <sup>
+              {' '}
+              <BsArrowUpRightSquare
+                onClick={openDcListener}
+                title="Open Designer-config in new tab"
+              />{' '}
+            </sup>
+          </Modal.Title>
+          <button
+            onClick={hideAceModal}
+            type="button"
+            className="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
         </Modal.Header>
         <Modal.Body>
           <AceEditor
@@ -291,10 +373,36 @@ export default function CheckPixels(prop) {
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={hideAceModal}>Cancel</Button>
-          <Button onClick={reloadStatusListner}>Refresh</Button>
+          <Button title="Refresh" onClick={reloadStatusListner}>
+            {'Refresh Ad unit '}
+            <MdRefresh />
+          </Button>
+          <Button onClick={downloadDcListener}>
+            {' '}
+            {'Download '}
+            <AiOutlineFile />
+          </Button>
+
+          <NavDropdown
+            bg="dark"
+            variant="dark"
+            title={<MdOutlineAnimation />}
+            onClick={handleCompButtonClick}
+            show={isCompOpen}
+          >
+            <NavDropdown.Item href="#" className="text-right ">
+              FadeOut
+            </NavDropdown.Item>
+            <NavDropdown.Item href="#" className="text-right">
+              FadeIn
+            </NavDropdown.Item>
+          </NavDropdown>
         </Modal.Footer>
       </Modal>
     </>
   );
+}
+
+{
+  /*https://react-icons.github.io/react-icons/search?q=animation*/
 }

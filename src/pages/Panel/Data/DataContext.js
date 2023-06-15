@@ -2,7 +2,7 @@ import React from 'react';
 import { createContext, useState, useEffect } from 'react';
 const DataContext = createContext();
 
-const DataContextProvider = ({ url, children }) => {
+const DataContextProvider = ({ children }) => {
   const [data, setData] = useState([
     { clickLives: [], intLives: [] },
     { desiAPIdata: 'designer api code..', url: '' },
@@ -10,33 +10,52 @@ const DataContextProvider = ({ url, children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchData().then((response) => {
-      //setData(response);
-
-      setData((prevData) => [response, { ...prevData[1] }]);
-
-      setLoading(false);
+    var port = chrome.runtime.connect({
+      name: 'tab_' + chrome.devtools.inspectedWindow.tabId,
     });
-  }, [url]);
 
-  const fetchData = async () => {
+    // add the listener once when the component mounts
+    port.onMessage.addListener(handlePortMessage);
+
+    return () => {
+      port.onMessage.removeListener(handlePortMessage);
+      port.disconnect();
+    };
+  }, []);
+
+  function handlePortMessage(msg) {
+    try {
+      if (msg.desiConfURL !== undefined) {
+        console.info('Received in DCP - ', msg.desiConfURL.split('?')[0]);
+
+        fetchData(msg.desiConfURL.split('?')[0]).then((response) => {
+          setData((prevData) => [response, { ...prevData[1] }]);
+          setLoading(false);
+        });
+      }
+    } catch (err) {
+      console.log('errIn DCP', err, 'msg  = ', msg);
+    }
+  }
+
+  const fetchData = async (_url) => {
     try {
       //  console.log('url inside DataContext Provider', typeof url === 'string', url === '', url);
-      if (typeof url !== 'string') return;
+      if (typeof _url !== 'string') return;
 
       setData((prevData) => [
         { ...prevData[0] }, //
-        { ...prevData[1], url: url },
+        { ...prevData[1], url: _url },
       ]);
 
-      const response = await fetch(url + '?cacheBurst=' + Math.random());
+      const response = await fetch(_url + '?cacheBurst=' + Math.random());
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
       const data = extractText(await response.text());
-
+      console.log(data);
       return data;
     } catch (error) {
       // Handle the error
@@ -78,6 +97,18 @@ const DataContextProvider = ({ url, children }) => {
 
     return { clickLives, intLives };
   };
+
+  /* 
+   return;
+
+  useEffect(() => {
+    fetchData().then((response) => {
+      setData((prevData) => [response, { ...prevData[1] }]);
+
+      setLoading(false);
+    });
+  }, [url]);
+  */
 
   return (
     <DataContext.Provider value={{ data, loading }}>
