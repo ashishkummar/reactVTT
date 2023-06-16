@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { DataContextProvider } from '../Data/DataContext';
-
 import CheckPixels from './CheckPixels';
 
 export default function IntLive(prop) {
@@ -40,7 +39,7 @@ export default function IntLive(prop) {
     //clean
     return () => {
       port.onMessage.removeListener(handlePortMessage);
-      port.disconnect();
+      //port.disconnect();
     };
   }, []);
 
@@ -71,7 +70,10 @@ export default function IntLive(prop) {
             flexDirection: 'row',
           }}
         >
-          <div>Int Lives &nbsp;</div>{' '}
+          <div>Int Lives &nbsp;</div>
+          <DataContextProvider>
+            <CheckPixels pixelType="intLive" />
+          </DataContextProvider>
         </div>
         <div onClick={clearPixsHandler}> Clear</div>
       </div>

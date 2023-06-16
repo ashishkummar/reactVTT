@@ -19,7 +19,7 @@ const DataContextProvider = ({ children }) => {
 
     return () => {
       port.onMessage.removeListener(handlePortMessage);
-      port.disconnect();
+      //port.disconnect();
     };
   }, []);
 

@@ -25,18 +25,11 @@ function Panel() {
     <div className="container">
       {<Header />}
       {<MemoizedVideoQuartiles />}
-      <DataContextProvider>
-        {<CheckPixels pixelType="intLive" />}
-      </DataContextProvider>
       {<MemoizedIntLive />}
-
-      {/*  <DataContextProvider>
-        {<CheckPixels pixelType="clickLive" />}
-      </DataContextProvider> */}
       {<MemoizedClickLive />}
-      {/*  {<MemoizedImageFiles />}
+      {<MemoizedImageFiles />}
       {<MemoizedVideoFiles />}
-      {<MemoizedFooter />} */}
+      {<MemoizedFooter />}
     </div>
   );
 }

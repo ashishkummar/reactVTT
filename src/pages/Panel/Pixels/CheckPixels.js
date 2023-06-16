@@ -25,120 +25,76 @@ export default function CheckPixels(prop) {
   const [desiApiData, setDesiApiData] = useState('Loading Designer API...');
   const [editStatus, setEditStatus] = useState(false);
   const [pageStatus, setPageStatus] = useState('');
-
   let port = chrome.runtime.connect({
     name: 'tab_' + chrome.devtools.inspectedWindow.tabId,
   });
-
-  useEffect(() => {
-    const handleTabLoad = (tabId) => {
-      console.log(`Tab ${tabId} loaded`, data[0].intLives.length);
-      // Perform your logic here for tab load event
-    };
-
-    const handleTabReload = (tabId, changeInfo) => {
-      if (changeInfo.status === 'loading') {
-        console.log(`Tab ${tabId} reloaded`);
-        // Perform your logic here for tab reload event
-      }
-    };
-
-    const handleTabUpdated = (tabId, changeInfo) => {
-      if (changeInfo.status === 'complete') {
-        handleTabLoad(tabId);
-      }
-    };
-
-    // Add event listeners for tab load and tab reload
-    chrome.tabs.onUpdated.addListener(handleTabUpdated);
-    chrome.tabs.onReplaced.addListener(handleTabLoad);
-
-    // Clean up event listeners
-    return () => {
-      chrome.tabs.onUpdated.removeListener(handleTabUpdated);
-      chrome.tabs.onReplaced.removeListener(handleTabLoad);
-    };
-  }, []);
-
   // Trigger once
   useEffect(() => {
-    console.log('Initial Data loaded in CheckPixel', data[0].intLives.length);
-
-    //
     setIntLives(data[0].intLives);
     setClickLives(data[0].clickLives);
-
-    chrome.tabs.onUpdated.addListener(onTabUpdated);
-    console.log('port.onMessage, chrome.tabs is set and ready....');
-
-    return () => {
-      chrome.tabs.onUpdated.removeListener(onTabUpdated);
-
-      port.onMessage.removeListener(handlePortMessage);
-      port.disconnect();
-      chrome.tabs.onUpdated.removeListener(onTabUpdated);
-    };
   }, [data]);
-
-  ///
 
   useEffect(() => {
     port.onMessage.addListener(handlePortMessage);
+    chrome.tabs.onUpdated.addListener(onTabUpdated);
     return () => {
-      port.disconnect();
-      // port.onMessage.removeListener(handlePortMessage);
+      //port.disconnect();
+      port.onMessage.removeListener(handlePortMessage);
+      chrome.tabs.onUpdated.removeListener(onTabUpdated);
     };
-  }, [data]);
 
-  useEffect(() => {
-    console.log('intLives updated');
-  }, [intLives]);
+    function handlePortMessage(msg) {
+      if (msg.pixel !== undefined) {
+        if (msg.pixel.intLive !== undefined) {
+          let pxl = msg.pixel.intLive.match(/id:(.*?);/)[1];
+          let found = false;
+          const updatedIntLives = intLives.map((data, index) => {
+            if (!found && data.ints === pxl && data.checked == false) {
+              data.checked = true;
+              found = true;
+            }
+            return data;
+          });
 
-  function handlePortMessage(msg) {
-    if (msg.pixel !== undefined) {
-      if (msg.pixel.intLive !== undefined) {
-        let pxl = msg.pixel.intLive.match(/id:(.*?);/)[1];
+          setIntLives(updatedIntLives);
+          console.log('    : setIntLives ', intLives, pxl, data[0].intLives);
+        }
 
-        let found = false;
-        const updatedIntLives = intLives.map((data, index) => {
-          if (!found && data.ints === pxl && data.checked == false) {
-            data.checked = true;
-            found = true;
-          }
-          return data;
-        });
-
-        setIntLives(updatedIntLives);
-        //  console.log('    : setIntLives ', updatedIntLives, pxl);
-      }
-
-      if (msg.pixel.clickLive !== undefined) {
-        let pxl2 = msg.pixel.clickLive.match(/id:(.*?);/)[1];
-        let ctafound = false;
-        const updatedClickLives = clickLives.map((data, index) => {
-          if (!ctafound && data.clicks === pxl2 && data.checked == false) {
-            data.checked = true;
-            ctafound = true;
-          }
-          return data;
-        });
-        setClickLives(updatedClickLives);
+        if (msg.pixel.clickLive !== undefined) {
+          let pxl2 = msg.pixel.clickLive.match(/id:(.*?);/)[1];
+          let ctafound = false;
+          const updatedClickLives = clickLives.map((data, index) => {
+            if (!ctafound && data.clicks === pxl2 && data.checked == false) {
+              data.checked = true;
+              ctafound = true;
+            }
+            return data;
+          });
+          setClickLives(updatedClickLives);
+        }
       }
     }
-  }
+  }, [intLives, clickLives]);
 
   function onTabUpdated(tabId, changeInfo, tab) {
     if (
       tabId === chrome.devtools.inspectedWindow.tabId &&
       changeInfo.status === 'loading'
     ) {
-      console.log('  Cleared setIntLives and setClickLives....');
+      console.clear();
+      console.log(
+        '  Cleared setIntLives and setClickLives.... editStaus',
+        editStatus
+      );
+      //if (!editStatus) {
       setIntLives([]);
       setClickLives([]);
+      //}
     }
     //
     if (changeInfo.url) {
       setPageStatus('new');
+
       port.postMessage({
         reload: false,
         editedDesiConf: '',
@@ -154,6 +110,7 @@ export default function CheckPixels(prop) {
         setDesiApiData('Loading designer api...');
         // setIsAceOpen(false);
       }
+      // setEditStatus(false);
     }
   }, [data[1].desiAPIdata]);
 
@@ -207,8 +164,11 @@ export default function CheckPixels(prop) {
   }
 
   function downloadDcListener() {
+    const blob = new Blob([desiApiData], { type: 'text/javascript' });
+    const url = window.URL.createObjectURL(blob);
+
     const anchor = document.createElement('a');
-    anchor.href = data[1].url;
+    anchor.href = url;
     anchor.download = data[1].url.substring(data[1].url.lastIndexOf('/') + 1);
     anchor.style.display = 'none';
     document.body.appendChild(anchor);

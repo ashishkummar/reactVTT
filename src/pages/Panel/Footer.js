@@ -24,7 +24,7 @@ export default function Footer(prop) {
 
     return () => {
       port.onMessage.removeListener(handlePortMessage);
-      port.disconnect();
+      //port.disconnect();
     };
 
     function handlePortMessage(msg) {

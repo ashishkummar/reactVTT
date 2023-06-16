@@ -1,14 +1,30 @@
-let desiURLfound = false;
+let tabId;
 let userReload = false;
-let currentUrl = null;
 let editedDesiConf = '';
 
 chrome.webRequest.onBeforeRequest.addListener(
   function (details) {
-    tabId = 'tab_' + details.tabId;
-    windowId = 'win_' + details.windowId;
+    // Designer Config ....
+    //
+    /*  if (details.url.indexOf('designer-config.js') != -1) {
+      if (details.url.indexOf('config.js&') === -1) {
+        if (details.url.indexOf('?cacheBurst') === -1) {
+          notifyDevtools({
+            desiConfURL: details.url,
+          });
+        }
+      }
+    } */
+
+    //
+
     if (details.url.indexOf('designer-config.js') != -1) {
       if (details.url.indexOf('config.js&') === -1) {
+        if (details.url.indexOf('?cacheBurst') === -1) {
+          notifyDevtools({
+            desiConfURL: details.url,
+          });
+        }
         if (editedDesiConf !== '') {
           if (editedDesiConf.length >= 1) {
             return {
@@ -26,6 +42,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 // CHROME API on header
 chrome.webRequest.onHeadersReceived.addListener(
   function (details) {
+    tabId = 'tab_' + details.tabId;
     //CLICKLIVE
     if (details.url.indexOf('clickLive') != -1 && details.statusCode == 200) {
       if (getParameterByName('custom4', details.url).indexOf('id:') != -1) {
@@ -104,28 +121,7 @@ chrome.webRequest.onHeadersReceived.addListener(
         });
       }
     }
-    // Designer Config ....
-    //
-    if (details.url.indexOf('designer-config.js') != -1) {
-      if (details.url.indexOf('config.js&') === -1) {
-        if (window.desifilegot == undefined) {
-          // console.log(fetchScript(details.url));
-          //window.desifilegot = true;
-        }
-        //console.log(details.url);
-        // if (!userReload) {
-        if (details.url.indexOf('?cacheBurst') === -1) {
-          notifyDevtools({
-            desiConfURL: details.url,
-          });
-        }
-
-        // userReload = true;
-        // }
-      }
-    }
-
-    //
+    //..//
     if (details.url.indexOf('demopages?published=true') != -1) {
       notifyDevtools({
         PubDemopagesURL: details.url,
@@ -137,53 +133,7 @@ chrome.webRequest.onHeadersReceived.addListener(
 );
 /////////////////////////////////////////////////////////////////////////////////////
 
-/* var ports = [];
-let windowId;
-let activeTabId;
-
-// Function to send a message to the DevTools panel
-function notifyDevtools(msg) {
-  ports.forEach(function (port) {
-    if (port.name === activeTabId) {
-      port.postMessage(msg);
-    }
-  });
-}
-
-chrome.windows.getCurrent(function (currentWindow) {
-  windowId = 'win_' + currentWindow.id;
-});
-
-chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-  activeTabId = 'tab_' + tabs[0].id;
-});
-
-chrome.runtime.onConnect.addListener(function (port) {
-  ports.push(port);
-
-  // Remove port when destroyed (e.g., when the DevTools instance is closed)
-  port.onDisconnect.addListener(function () {
-    var i = ports.indexOf(port);
-    if (i !== -1) ports.splice(i, 1);
-  });
-
-  port.onMessage.addListener(function (request) {
-    // Received message from the DevTools panel. Do something:
-    console.log('Received message from DevTools page', request);
-    if (request.reload) {
-      userReload = true;
-      editedDesiConf = request.editedDesiConf;
-      chrome.tabs.reload();
-    } else {
-      editedDesiConf = '';
-    }
-  });
-});
- */
 var ports = [];
-let _activeTabIDBG = 'vdxVTTtool';
-let tabId;
-let windowId;
 
 function notifyDevtools(msg) {
   // find the relevant panel and send message.
@@ -193,25 +143,7 @@ function notifyDevtools(msg) {
       port.postMessage(msg);
     }
   });
-
-  /*  ports.forEach(function (port) {
-    chrome.windows.getCurrent(function (w) {
-      chrome.tabs.query({ active: true }, (tabs) => {
-        if (tabId == port.name) {
-          port.postMessage(msg);
-        }
-      });
-    });
-  }); */
 }
-
-chrome.windows.getCurrent(function (currentWindow) {
-  windowId = 'win_' + currentWindow.id;
-});
-
-chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-  tabId = 'tab_' + tabs[0].id;
-});
 
 chrome.runtime.onConnect.addListener(function (port) {
   ports.push(port);
@@ -219,11 +151,12 @@ chrome.runtime.onConnect.addListener(function (port) {
   // Remove port when destroyed (eg when devtools instance is closed)
   port.onDisconnect.addListener(function () {
     var i = ports.indexOf(port);
+    console.log('onDisconnected port ', ports, i);
     if (i !== -1) ports.splice(i, 1);
   });
 
+  // Received message from devtools. Do something:
   port.onMessage.addListener(function (request) {
-    // Received message from devtools. Do something:
     console.log('Received message from devtools page', request);
     if (request.reload) {
       userReload = true;
@@ -242,13 +175,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
     userReload = false;
   }
 });
-// Function to send a message to background js
-function notifyBackgroundJs(msgdata, medId) {
-  console.log('notifyBackgroundJs called...', msgdata, medId);
-}
 ///
-
-// Function to receive a message from panel
 
 // end of message to panel
 
@@ -262,4 +189,3 @@ function getParameterByName(name, url) {
   if (!results[2]) return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
-////////////

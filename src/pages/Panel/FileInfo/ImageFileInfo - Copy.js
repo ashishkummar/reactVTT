@@ -95,7 +95,7 @@ export default function ImageFileInfo(prop) {
 
     return () => {
       port.onMessage.removeListener(handlePortMessage);
-      port.disconnect();
+      //port.disconnect();
     };
   }, []);
 

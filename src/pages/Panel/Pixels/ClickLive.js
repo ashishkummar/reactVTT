@@ -65,6 +65,9 @@ export default function ClickLive(prop) {
           }}
         >
           <div>Click Lives &nbsp;</div>{' '}
+          <DataContextProvider>
+            <CheckPixels pixelType="clickLive" />
+          </DataContextProvider>
         </div>
         <div onClick={clearPixsHandler}>Clear</div>
       </div>

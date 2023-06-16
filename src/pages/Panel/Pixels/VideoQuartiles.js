@@ -29,7 +29,7 @@ export default function VideoQuartiles(props) {
 
     return () => {
       port.onMessage.removeListener(handlePortMessage);
-      port.disconnect();
+      //port.disconnect();
       chrome.tabs.onUpdated.removeListener(onUpdate);
     };
   }, []);

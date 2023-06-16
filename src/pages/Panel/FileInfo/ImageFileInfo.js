@@ -48,7 +48,7 @@ export default function ImageFileInfo() {
 
     return () => {
       port.onMessage.removeListener(handlePortMessage);
-      port.disconnect();
+      //port.disconnect();
       chrome.tabs.onUpdated.removeListener(onUpdate);
     };
   }, []);
