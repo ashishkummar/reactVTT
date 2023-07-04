@@ -91,6 +91,14 @@ export default function Footer(prop) {
     };
   }, [demoPurlData]); // Include demoPurlData in the dependency array to re-fetch when it changes
 
+  function gotoETPageHandler() {
+    if (isNaN(+adUnitType * 1)) return;
+    window.open(
+      'https://expotask.exponential.com/request/info/' + adUnitType,
+      '_blank'
+    );
+  }
+
   // Conditionally render badges only when necessary
   const buildStateBadge = buildState ? (
     buildState.includes('VDX') ? (
@@ -103,7 +111,10 @@ export default function Footer(prop) {
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
       {buildStateBadge}
-      <div className="badge badge-info ">{adUnitType}</div>
+      <div className="badge badge-info" onClick={gotoETPageHandler}>
+        {' '}
+        {adUnitType}
+      </div>
     </div>
   );
 }
