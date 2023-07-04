@@ -81,7 +81,6 @@ export default function CheckPixels(prop) {
       tabId === chrome.devtools.inspectedWindow.tabId &&
       changeInfo.status === 'loading'
     ) {
-      console.clear();
       console.log(
         '  Cleared setIntLives and setClickLives.... editStaus',
         editStatus

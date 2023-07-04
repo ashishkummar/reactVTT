@@ -1,7 +1,7 @@
 .navbar {
-  min-height: 30px;
+  min-height: 20px;
 
-  padding: 0.2rem 0.2rem;
+  padding: 0.2rem 2px;
 }
 
 .menu-icon {
@@ -9,5 +9,8 @@
 }
 
 .navbar-brand {
-  font-size: -0.75rem;
+  font-size: 1rem;
+}
+.navbar-toggler {
+  font-size: 1rem !important;
 }

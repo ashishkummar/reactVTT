@@ -127,6 +127,12 @@ chrome.webRequest.onHeadersReceived.addListener(
         PubDemopagesURL: details.url,
       });
     }
+    //..//
+    if (details.url.indexOf('&designerConfig=') != -1) {
+      notifyDevtools({
+        adUnitType: details.url,
+      });
+    }
   },
   { urls: ['<all_urls>'] },
   ['blocking']

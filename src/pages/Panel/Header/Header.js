@@ -14,7 +14,7 @@ export default function Header() {
   return (
     <>
       <Navbar bg-dark p-1 expand="sm" bg="light" variant="light">
-        <Navbar.Brand>
+        <Navbar.Brand style={{ fontSize: '1rem', paddingTop: '0px' }}>
           <img
             src={logo} // Set the path to the logo image
             width="25"

@@ -118,8 +118,8 @@ export default function ImageFileInfo() {
         className="fontSettings"
         style={{
           padding: '4px',
-          minHeight: '80px',
-          height: '80px',
+          minHeight: '75px',
+          height: '75px',
           //maxHeight: '200px',
           border: '1px solid',
           overflow: 'auto',

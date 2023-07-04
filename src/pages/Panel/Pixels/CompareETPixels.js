@@ -168,7 +168,7 @@ export default function CompareETPixels(prop) {
       <Modal show={isOpen} onHide={hideModal}>
         <Modal.Header>
           <Modal.Title className="modal-title h6">
-            Compare Pixels with Expotask
+            Compare with ET Pixels
           </Modal.Title>
           <button
             onClick={hideModal}
@@ -242,9 +242,9 @@ export default function CompareETPixels(prop) {
             aria-describedby="basic-addon2"
           />
 
-          <div className="input-group-append">
+          <div className="input-group-append mb-0">
             <Button
-              className="btn btn-secondary"
+              className="btn btn-sm btn-secondary"
               onClick={compareListener}
               id="compareETpix"
               type="button"
@@ -254,7 +254,7 @@ export default function CompareETPixels(prop) {
                 role="status"
                 aria-hidden="true"
               ></span>
-              Compare Pixels with ExpoTask{' '}
+              Compare with ET Pixels{' '}
             </Button>
           </div>
         </div>

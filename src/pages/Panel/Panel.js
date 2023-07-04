@@ -6,7 +6,7 @@ import IntLive from './Pixels/IntLive';
 import ClickLive from './Pixels/ClickLive';
 import VideoFileInfo from './FileInfo/VideoFileInfo';
 import ImageFileInfo from './FileInfo/ImageFileInfo';
-import Footer from './Footer';
+import Footer from './Footer/Footer';
 
 const MemoizedVideoQuartiles = memo(VideoQuartiles);
 const MemoizedIntLive = memo(IntLive);
@@ -17,7 +17,7 @@ const MemoizedFooter = memo(Footer);
 
 function Panel() {
   return (
-    <div className="container">
+    <div style={{ marginLeft: '2px', marginRight: '2px' }}>
       {<Header />}
       {<MemoizedVideoQuartiles />}
       {<MemoizedIntLive />}
