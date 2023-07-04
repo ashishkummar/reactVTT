@@ -82,14 +82,14 @@ export default function Footer(prop) {
       }
     };
 
-    // Add the listener once when the component mounts
+    // Adding the listener once when the component mounts
     port.onMessage.addListener(handlePortMessage);
 
     return () => {
       chrome.tabs.onUpdated.removeListener(updateListener);
       port.onMessage.removeListener(handlePortMessage);
     };
-  }, [demoPurlData]); // Include demoPurlData in the dependency array to re-fetch when it changes
+  }, [demoPurlData]);
 
   function gotoETPageHandler() {
     if (isNaN(+adUnitType * 1)) return;
@@ -99,7 +99,7 @@ export default function Footer(prop) {
     );
   }
 
-  // Conditionally render badges only when necessary
+  // Conditionally rendering badges only when necessary
   const buildStateBadge = buildState ? (
     buildState.includes('VDX') ? (
       <div className="badge badge-success">{buildState}</div>
