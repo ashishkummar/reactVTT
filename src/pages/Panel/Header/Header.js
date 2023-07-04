@@ -27,7 +27,7 @@ export default function Header() {
         <Navbar.Toggle
           aria-controls="navbarToggleExternalContent"
           onClick={handleToggle}
-          className={expanded ? 'open' : ''}
+          className={expanded ? 'open btn-sm' : 'btn-sm'}
         >
           {expanded ? (
             <FaTimes className="menu-icon" /> // "X" icon when menu is open
