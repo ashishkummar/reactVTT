@@ -18,7 +18,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 
     //
 
-    if (details.url.indexOf('designer-config.js') != -1) {
+    if (details.url.indexOf('designer-config.js') !== -1) {
       if (details.url.indexOf('config.js&') === -1) {
         if (details.url.indexOf('?cacheBurst') === -1) {
           notifyDevtools({
@@ -44,8 +44,8 @@ chrome.webRequest.onHeadersReceived.addListener(
   function (details) {
     tabId = 'tab_' + details.tabId;
     //CLICKLIVE
-    if (details.url.indexOf('clickLive') != -1 && details.statusCode == 200) {
-      if (getParameterByName('custom4', details.url).indexOf('id:') != -1) {
+    if (details.url.indexOf('clickLive') !== -1 && details.statusCode === 200) {
+      if (getParameterByName('custom4', details.url).indexOf('id:') !== -1) {
         notifyDevtools({
           pixel: {
             clickLive: getParameterByName('custom4', details.url),
@@ -64,10 +64,10 @@ chrome.webRequest.onHeadersReceived.addListener(
 
     //INTLIVE
 
-    if (details.url.indexOf('intLive') != -1 && details.statusCode == 200) {
+    if (details.url.indexOf('intLive') !== -1 && details.statusCode === 200) {
       console.info(getParameterByName('custom4', details.url));
 
-      if (getParameterByName('custom4', details.url).indexOf('id:') != -1) {
+      if (getParameterByName('custom4', details.url).indexOf('id:') !== -1) {
         notifyDevtools({
           pixel: {
             intLive: getParameterByName('custom4', details.url),
@@ -86,7 +86,7 @@ chrome.webRequest.onHeadersReceived.addListener(
     }
 
     //PCLIVE
-    if (details.url.indexOf('pcLive') != -1 && details.statusCode == 200) {
+    if (details.url.indexOf('pcLive') !== -1 && details.statusCode === 200) {
       if (getParameterByName('event', details.url) != null) {
         notifyDevtools({
           video: {
@@ -101,7 +101,7 @@ chrome.webRequest.onHeadersReceived.addListener(
     ///-----------
 
     // fetch video info	details
-    if (details.url.indexOf('.mp4') != -1) {
+    if (details.url.indexOf('.mp4') !== -1) {
       if (details.url.indexOf('init.mp4') !== -1) {
         notifyDevtools({
           videoURL: details.url,
@@ -110,25 +110,25 @@ chrome.webRequest.onHeadersReceived.addListener(
     }
     //// images
     if (
-      details.url.indexOf('.jpg') != -1 ||
-      details.url.indexOf('.jpeg') != -1 ||
-      details.url.indexOf('.png') != -1 ||
-      details.url.indexOf('.gif') != -1
+      details.url.indexOf('.jpg') !== -1 ||
+      details.url.indexOf('.jpeg') !== -1 ||
+      details.url.indexOf('.png') !== -1 ||
+      details.url.indexOf('.gif') !== -1
     ) {
-      if (details.url.indexOf('/mockmedia/') != -1) {
+      if (details.url.indexOf('/mockmedia/') !== -1) {
         notifyDevtools({
           imgURL: details.url,
         });
       }
     }
     //..//
-    if (details.url.indexOf('demopages?published=true') != -1) {
+    if (details.url.indexOf('demopages?published=true') !== -1) {
       notifyDevtools({
         PubDemopagesURL: details.url,
       });
     }
     //..//
-    if (details.url.indexOf('&designerConfig=') != -1) {
+    if (details.url.indexOf('&designerConfig=') !== -1) {
       notifyDevtools({
         adUnitType: details.url,
       });
@@ -188,7 +188,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
 //
 function getParameterByName(name, url) {
   if (!url) url = window.location.href;
-  name = name.replace(/[\[\]]/g, '\\$&');
+  name = name.replace(/[[\]]/g, '\\$&');
   var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
     results = regex.exec(url);
   if (!results) return null;

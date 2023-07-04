@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import debounce from 'lodash.debounce';
 
 export default function ImageFileInfo() {
-  const imagesEndRef = useRef(null);
   const [sortedImages, setSortedImages] = useState([]);
   const uniqueURLs = useRef(new Set());
 

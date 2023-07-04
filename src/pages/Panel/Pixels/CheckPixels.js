@@ -16,7 +16,7 @@ import './pixels.css';
 export default function CheckPixels(prop) {
   const editorRef = useRef();
   const [isCompOpen, setIsCompOpen] = useState(false);
-  const { data, loading } = useContext(DataContext);
+  const { data } = useContext(DataContext);
   const [intLives, setIntLives] = useState([]);
   const [clickLives, setClickLives] = useState([]);
   //
@@ -49,7 +49,7 @@ export default function CheckPixels(prop) {
           let pxl = msg.pixel.intLive.match(/id:(.*?);/)[1];
           let found = false;
           const updatedIntLives = intLives.map((data, index) => {
-            if (!found && data.ints === pxl && data.checked == false) {
+            if (!found && data.ints === pxl && data.checked === false) {
               data.checked = true;
               found = true;
             }
@@ -64,7 +64,7 @@ export default function CheckPixels(prop) {
           let pxl2 = msg.pixel.clickLive.match(/id:(.*?);/)[1];
           let ctafound = false;
           const updatedClickLives = clickLives.map((data, index) => {
-            if (!ctafound && data.clicks === pxl2 && data.checked == false) {
+            if (!ctafound && data.clicks === pxl2 && data.checked === false) {
               data.checked = true;
               ctafound = true;
             }
@@ -103,7 +103,7 @@ export default function CheckPixels(prop) {
 
   useEffect(() => {
     if (pageStatus === 'new') {
-      if (data[1].desiAPIdata.search('<!DOCTYPE html>') == -1) {
+      if (data[1].desiAPIdata.search('<!DOCTYPE html>') === -1) {
         setDesiApiData(data[1].desiAPIdata);
       } else {
         setDesiApiData('Loading designer api...');
@@ -370,6 +370,4 @@ export default function CheckPixels(prop) {
   );
 }
 
-{
-  /*https://react-icons.github.io/react-icons/search?q=animation*/
-}
+/*https://react-icons.github.io/react-icons/search?q=animation*/
