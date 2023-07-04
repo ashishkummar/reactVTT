@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 export default function Footer(prop) {
   const [buildState, setBuildState] = useState('...');
-  const [adUnitType, setAdunitTyle] = useState('...');
+  const [adUnitType, setAdunitType] = useState('...');
   const [demoPurlData, setDemoPurlData] = useState('');
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export default function Footer(prop) {
         tabId === chrome.devtools.inspectedWindow.tabId &&
         changeInfo.status === 'loading'
       ) {
-        setAdunitTyle('...');
+        setAdunitType('...');
       }
     };
 
@@ -46,7 +46,7 @@ export default function Footer(prop) {
           let _unitName = msg.adUnitType.split('.html?namejs')[0];
           _unitName = _unitName.split('/creative_')[1];
 
-          setAdunitTyle(_unitName);
+          setAdunitType(_unitName);
 
           if (demoPurlData.data.urls.length !== 0) {
             for (let i = 0; i < demoPurlData.data.urls.length; i++) {
@@ -55,14 +55,14 @@ export default function Footer(prop) {
                   if (
                     demoPurlData.data.urls[i].product === 'VdxMobileExpandable'
                   ) {
-                    setAdunitTyle(demoPurlData.data.urls[i].creativeRequestId);
+                    setAdunitType(demoPurlData.data.urls[i].creativeRequestId);
                     break;
                   }
                 }
               }
               if (_unitName.indexOf('inframe_') !== -1) {
                 if (demoPurlData.data.urls[i].product === 'VdxDesktopInframe') {
-                  setAdunitTyle(demoPurlData.data.urls[i].creativeRequestId);
+                  setAdunitType(demoPurlData.data.urls[i].creativeRequestId);
                   break;
                 }
               }
@@ -70,7 +70,7 @@ export default function Footer(prop) {
                 if (
                   demoPurlData.data.urls[i].product === 'VdxDesktopExpandable'
                 ) {
-                  setAdunitTyle(demoPurlData.data.urls[i].creativeRequestId);
+                  setAdunitType(demoPurlData.data.urls[i].creativeRequestId);
                   break;
                 }
               }
