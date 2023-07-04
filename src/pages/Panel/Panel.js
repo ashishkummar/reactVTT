@@ -1,6 +1,6 @@
 import './Panel.css';
 import React, { useState, useEffect, memo, useContext } from 'react';
-import Header from './Header';
+import Header from './Header/Header';
 import VideoQuartiles from './Pixels/VideoQuartiles';
 import IntLive from './Pixels/IntLive';
 import ClickLive from './Pixels/ClickLive';

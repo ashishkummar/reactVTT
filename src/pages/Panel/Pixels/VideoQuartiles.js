@@ -50,35 +50,31 @@ export default function VideoQuartiles(props) {
   });
 
   return (
-    <div>
-      Video Quartiles
-      {
-        <div
-          style={{
-            height: '80px',
-            padding: '3px',
-            border: '1px solid',
-            overflow: 'auto',
-          }}
-        >
-          {VideoPixels.length !== 0
-            ? VideoPixels.map((data, index) => (
-                <div key={index}>
-                  {data.msg && data.msg.video && data.msg.video.pxl && (
-                    <div>
-                      {' '}
-                      {JSON.stringify(data.msg.video)
-                        .split('st:')[1]
-                        .split('","')[0] || 'not found'}{' '}
-                      | {data.msg.video.pxl}
-                    </div>
-                  )}
-                </div>
-              ))
-            : ''}
-          <div ref={messagesEndRef} />
-        </div>
-      }
-    </div>
+    <>
+      {' '}
+      <div>
+        <div className="tabs videotabsbg fontSettings">Video Quartiles</div>
+        {
+          <div className="videoQbox fontSettings">
+            {VideoPixels.length !== 0
+              ? VideoPixels.map((data, index) => (
+                  <div key={index}>
+                    {data.msg && data.msg.video && data.msg.video.pxl && (
+                      <div>
+                        {' '}
+                        {JSON.stringify(data.msg.video)
+                          .split('st:')[1]
+                          .split('","')[0] || 'not found'}{' '}
+                        | {data.msg.video.pxl}
+                      </div>
+                    )}
+                  </div>
+                ))
+              : ''}
+            <div ref={messagesEndRef} />
+          </div>
+        }
+      </div>
+    </>
   );
 }

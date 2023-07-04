@@ -56,12 +56,11 @@ export default function Footer(prop) {
   return (
     <>
       <div
-        className="fixed-bottom"
-        style={
-          {
-            //padding: '1px'
-          }
-        }
+        className=""
+        style={{
+          marginLeft: '0px',
+          marginTop: '-5px',
+        }}
       >
         {buildState !== '' ? (
           buildState.includes('VDX') ? (

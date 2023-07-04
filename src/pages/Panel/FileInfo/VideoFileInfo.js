@@ -142,10 +142,13 @@ export default function VideoFileInfo(prop) {
   }, []);
   return (
     <div>
-      Video Size and Duration
+      <div className="tabs videoSizetabsbg fontSettings">
+        Video Size and Duration
+      </div>
       <div
+        className="fontSettings"
         style={{
-          height: '95px',
+          height: '70px',
           border: '1px solid',
           overflow: 'auto',
           padding: '4px',

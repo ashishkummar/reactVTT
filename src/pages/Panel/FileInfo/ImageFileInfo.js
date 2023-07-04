@@ -113,12 +113,13 @@ export default function ImageFileInfo() {
 
   return (
     <>
-      ImageFileInfo {new Date().getTime()}
+      <div className="tabs imagetabsbg fontSettings">Image File Info</div>
       <div
+        className="fontSettings"
         style={{
-          padding: '5px',
-          minHeight: '100px',
-          height: '100px',
+          padding: '4px',
+          minHeight: '80px',
+          height: '80px',
           //maxHeight: '200px',
           border: '1px solid',
           overflow: 'auto',

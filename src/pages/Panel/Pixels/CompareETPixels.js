@@ -45,17 +45,15 @@ export default function CompareETPixels(prop) {
       for (var i = 0; i < objPixel.length; i++) {
         console.info(objPixel[i].event_name, ' | ', objPixel[i].description);
 
-        var temp = document.createElement('div');
-
         _etPxls +=
-          "<span className='text-liteColor'>" +
+          "<span title='Available on ExpoTask but missing in designer-config'  class='text-liteColor'>" +
           objPixel[i].description +
-          '</span><br>';
+          '</span>';
       }
 
       //console.log('::_etPxls = ', _etPxls);
 
-      if (_etPxls == '') {
+      if (_etPxls === '') {
         _etPxls = 'No records available';
       }
 
@@ -120,6 +118,7 @@ export default function CompareETPixels(prop) {
             _etPixs.childNodes[j].textContent.trim()
           ) === 0
         ) {
+          _etPixs.childNodes[j].removeAttribute('title');
           _etPixs.childNodes[j].classList.remove('text-liteColor');
           _etPixs.childNodes[j].classList.add('text-intETcompared');
         }
@@ -134,6 +133,7 @@ export default function CompareETPixels(prop) {
             _etPixs.childNodes[b].textContent.trim()
           ) === 0
         ) {
+          _etPixs.childNodes[b].removeAttribute('title');
           _etPixs.childNodes[b].classList.remove('text-liteColor');
           _etPixs.childNodes[b].classList.add('text-ctaETcompared');
         } else {
@@ -167,7 +167,9 @@ export default function CompareETPixels(prop) {
     <>
       <Modal show={isOpen} onHide={hideModal}>
         <Modal.Header>
-          <Modal.Title>Compare Pixels with Expotask</Modal.Title>
+          <Modal.Title className="modal-title h6">
+            Compare Pixels with Expotask
+          </Modal.Title>
           <button
             onClick={hideModal}
             type="button"
@@ -187,19 +189,22 @@ export default function CompareETPixels(prop) {
             }}
           >
             <div>
-              <b>:: Pixel Comparison from ExpoTask ::</b>
-              <br />
-              <span style={{ 'font-size': '19px', color: 'blue' }}>
+              <span style={{ 'font-size': '17px', color: 'blue' }}>
                 {' '}
                 &#9632;{' '}
               </span>
               ClickLive
-              <span style={{ 'font-size': '19px', color: 'green' }}>
+              <span style={{ 'font-size': '17px', color: 'green' }}>
                 {' '}
                 &#9632;{' '}
               </span>
               IntLive
-              <span style={{ 'font-size': '19px', color: 'red' }}>
+              <span
+                style={{
+                  'font-size': '17px',
+                  color: 'red',
+                }}
+              >
                 {' '}
                 &#9632;{' '}
               </span>{' '}
@@ -212,8 +217,9 @@ export default function CompareETPixels(prop) {
             ref={compareDivRef}
             style={{
               width: '100%',
-              height: '480px',
+              height: '410px',
               overflow: 'scroll',
+              fontSize: '13px',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',

@@ -12,7 +12,7 @@ import { MdRefresh, MdEditNote, MdOutlineAnimation } from 'react-icons/md';
 import { BsArrowUpRightSquare } from 'react-icons/bs';
 
 import { Button, Modal, NavDropdown } from 'react-bootstrap';
-
+import './pixels.css';
 export default function CheckPixels(prop) {
   const editorRef = useRef();
   const [isCompOpen, setIsCompOpen] = useState(false);
@@ -183,7 +183,7 @@ export default function CheckPixels(prop) {
   return (
     <>
       {
-        <div style={{ cursor: 'pointer' }} onClick={showModal}>
+        <div className="CheckPixelsWidget" onClick={showModal}>
           {/* 
           <div
             className="spinner-grow spinner-grow-sm"
@@ -202,7 +202,9 @@ export default function CheckPixels(prop) {
       }
       <Modal show={isOpen} onHide={hideModal}>
         <Modal.Header>
-          <Modal.Title>IntLive and clickLive Pixels</Modal.Title>
+          <Modal.Title className="modal-title h6">
+            IntLive and clickLive Pixels
+          </Modal.Title>
           <button
             onClick={hideModal}
             type="button"
@@ -217,11 +219,12 @@ export default function CheckPixels(prop) {
           {/*console.log('intLives updated:----', clickLives, intLives) */}
           <div
             style={{
+              fontSize: '13px',
               width: '100%',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              height: '450px',
+              height: '345px',
               overflow: 'scroll',
             }}
           >
@@ -283,16 +286,16 @@ export default function CheckPixels(prop) {
             <CompareETPixels clickLives={clickLives} intLives={intLives} />
           )}
 
-          <Button onClick={showAceModal}>
+          <Button className="btn-sm" onClick={showAceModal}>
             {' '}
             <MdEditNote /> Edit Designer Config
           </Button>
         </Modal.Footer>
       </Modal>
       {/*<EditDC AceState={showACEModal} DAPIDATA={data[1].desiAPIdata} />*/}
-      <Modal dialogClassName="modal-lg" show={isAceOpen} onHide={hideAceModal}>
+      <Modal dialogClassName="modal-sm" show={isAceOpen} onHide={hideAceModal}>
         <Modal.Header>
-          <Modal.Title>
+          <Modal.Title className="modal-title h6">
             Designer-Config{' '}
             <sup>
               {' '}
@@ -318,7 +321,8 @@ export default function CheckPixels(prop) {
             ref={editorRef}
             mode={'javascript'}
             width={'100%'}
-            fontSize={14}
+            height={'387px'}
+            fontSize={12}
             focus={true}
             wrapEnabled={false}
             theme="github_dark"
@@ -333,11 +337,15 @@ export default function CheckPixels(prop) {
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button title="Refresh" onClick={reloadStatusListner}>
+          <Button
+            className="btn-sm"
+            title="Refresh"
+            onClick={reloadStatusListner}
+          >
             {'Refresh Ad unit '}
             <MdRefresh />
           </Button>
-          <Button onClick={downloadDcListener}>
+          <Button className="btn-sm" onClick={downloadDcListener}>
             {' '}
             {'Download '}
             <AiOutlineFile />

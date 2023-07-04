@@ -70,7 +70,7 @@ export default function IntLive(prop) {
             flexDirection: 'row',
           }}
         >
-          <div>Int Lives &nbsp;</div>
+          <div className="tabs inttabsbg fontSettings">Int Lives </div>{' '}
           <DataContextProvider>
             <CheckPixels pixelType="intLive" />
           </DataContextProvider>
@@ -78,8 +78,10 @@ export default function IntLive(prop) {
         <div onClick={clearPixsHandler}> Clear</div>
       </div>
       <div
+        className="fontSettings"
         style={{
-          height: '110px',
+          height: '80px',
+          lineHeight: '16px',
           padding: '3px',
           border: '1px solid',
           overflow: 'auto',

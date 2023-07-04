@@ -64,7 +64,7 @@ export default function ClickLive(prop) {
             flexDirection: 'row',
           }}
         >
-          <div>Click Lives &nbsp;</div>{' '}
+          <div className="tabs clicktabsbg  fontSettings ">Click Lives </div>{' '}
           <DataContextProvider>
             <CheckPixels pixelType="clickLive" />
           </DataContextProvider>
@@ -74,8 +74,9 @@ export default function ClickLive(prop) {
 
       <div style={{ display: 'flex', flexDirection: 'row' }}></div>
       <div
+        className="fontSettings"
         style={{
-          height: '110px',
+          height: '80px',
           padding: '3px',
           border: '1px solid',
           overflow: 'auto',
