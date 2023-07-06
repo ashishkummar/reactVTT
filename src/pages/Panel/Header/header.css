@@ -14,3 +14,26 @@
 .navbar-toggler {
   font-size: 1rem !important;
 }
+
+.updateAlert {
+  margin-top: -6px;
+  margin-left: 30px;
+  font-size: 9px;
+  width: 100px;
+  animation: swing 2s cubic-bezier(0, 0, 0.69, 1.56) infinite;
+  white-space: nowrap;
+  text-align: center;
+  cursor: pointer;
+}
+
+@keyframes swing {
+  0% {
+    transform: translateX(0px);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+  100% {
+    transform: translateX(0px);
+  }
+}
