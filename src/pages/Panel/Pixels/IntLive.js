@@ -75,7 +75,10 @@ export default function IntLive(prop) {
             <CheckPixels pixelType="intLive" />
           </DataContextProvider>
         </div>
-        <div onClick={clearPixsHandler}> Clear</div>
+        <div className="clear" onClick={clearPixsHandler}>
+          {' '}
+          Clear
+        </div>
       </div>
       <div
         className="fontSettings"

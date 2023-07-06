@@ -69,7 +69,9 @@ export default function ClickLive(prop) {
             <CheckPixels pixelType="clickLive" />
           </DataContextProvider>
         </div>
-        <div onClick={clearPixsHandler}>Clear</div>
+        <div className="clear" onClick={clearPixsHandler}>
+          Clear
+        </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'row' }}></div>

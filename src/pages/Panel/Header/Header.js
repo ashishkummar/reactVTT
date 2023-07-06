@@ -37,14 +37,27 @@ export default function Header() {
         </Navbar.Toggle>
         <Navbar.Collapse id="navbarToggleExternalContent">
           <Nav className="ml-auto">
-            <Nav.Link href="#">Home</Nav.Link>
-            <Nav.Link href="#">About</Nav.Link>
-            <NavDropdown title="Dropdown" id="nav-dropdown">
+            <Nav.Link
+              href="https://creative.exponential.com/creative/devshowcase/slimPic/"
+              target="_blanlk"
+            >
+              SlimPic
+            </Nav.Link>
+            <Nav.Link
+              href="https://wiki.exponential.com/display/~ashish.kumar/Chrome+Extensions"
+              target="_blank"
+            >
+              About
+            </Nav.Link>
+            <Nav.Link href="https://tinyurl.com/mupc75ju" target="_blank">
+              Help
+            </Nav.Link>
+            {/* <NavDropdown title="Dropdown" id="nav-dropdown">
               <NavDropdown.Item href="#">Item 1</NavDropdown.Item>
               <NavDropdown.Item href="#">Item 2</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item href="#">Separated link</NavDropdown.Item>
-            </NavDropdown>
+            </NavDropdown> */}
           </Nav>
         </Navbar.Collapse>
       </Navbar>

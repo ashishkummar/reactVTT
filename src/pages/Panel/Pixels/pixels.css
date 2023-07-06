@@ -38,7 +38,7 @@
 }
 
 .tabs {
-  margin-top: 3px;
+  margin-top: 4px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 
@@ -88,6 +88,16 @@
   padding: 3px;
   border: 1px solid;
   overflow: auto;
+}
+.clear {
+  font-size: 11px;
+  margin-top: 6px;
+  margin-right: 2px;
+  cursor: pointer;
+}
+
+.clear:hover {
+  color: red;
 }
 
 /* scrollbar */
