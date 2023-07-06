@@ -1,4 +1,4 @@
-import logo from '../images/img16.png'; // Import the logo image
+import logo from '../../../assets/img/icon-128.png'; // Import the logo image
 
 import React, { useState } from 'react';
 import { Nav, Navbar, NavDropdown } from 'react-bootstrap';

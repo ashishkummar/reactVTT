@@ -29,6 +29,7 @@ export default function Footer(prop) {
           if (demoPurl === '') {
             return;
           }
+          console.log('footer', demoPurl);
           fetch(demoPurl)
             .then((response) => response.text())
             .then((contents) => {
@@ -102,19 +103,26 @@ export default function Footer(prop) {
   // Conditionally rendering badges only when necessary
   const buildStateBadge = buildState ? (
     buildState.includes('VDX') ? (
-      <div className="badge badge-success">{buildState}</div>
+      <div className="badge badge-success ml-1 mt-1">{buildState}</div>
     ) : (
-      <div className="badge badge-primary">{buildState}</div>
+      <div className="badge badge-primary ml-1 mt-1">{buildState}</div>
     )
   ) : null;
 
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
       {buildStateBadge}
-      <div className="badge badge-info" onClick={gotoETPageHandler}>
-        {' '}
-        {adUnitType}
-      </div>
+
+      {!isNaN(+adUnitType * 1) ? (
+        <div
+          className="badge badge-info ml-1 mt-1 "
+          onClick={gotoETPageHandler}
+        >
+          {adUnitType}
+        </div>
+      ) : (
+        ''
+      )}
     </div>
   );
 }

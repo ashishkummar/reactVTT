@@ -1,3 +1,5 @@
+import { createContextMenu } from './ContextMenu/ContextMenu';
+
 let tabId;
 let userReload = false;
 let editedDesiConf = '';
@@ -126,6 +128,9 @@ chrome.webRequest.onHeadersReceived.addListener(
       notifyDevtools({
         PubDemopagesURL: details.url,
       });
+      if (details.url.indexOf('usecase=vtt') === -1) {
+        createContextMenu(details.url);
+      }
     }
     //..//
     if (details.url.indexOf('&designerConfig=') !== -1) {
