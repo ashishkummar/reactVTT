@@ -5400,7 +5400,7 @@ jQuery.event = {
 			}
 		},
 
-		beforeunload: {
+		beforeunload: {t
 			postDispatch: function( event ) {
 
 				// Support: Firefox 20+
