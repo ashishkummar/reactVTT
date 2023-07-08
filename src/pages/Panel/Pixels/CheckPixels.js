@@ -10,10 +10,13 @@ import CompareETPixels from './CompareETPixels';
 import { AiOutlineFile, AiOutlineCodeSandbox } from 'react-icons/ai';
 import { MdRefresh, MdEditNote, MdOutlineAnimation } from 'react-icons/md';
 import { BsArrowUpRightSquare } from 'react-icons/bs';
+import Trackvtt from '../../TrackerAPI/Trackvtt';
 
 import { Button, Modal, NavDropdown } from 'react-bootstrap';
 import './pixels.css';
+
 export default function CheckPixels(prop) {
+  const TT = new Trackvtt();
   const editorRef = useRef();
   const [isCompOpen, setIsCompOpen] = useState(false);
   const { data } = useContext(DataContext);
@@ -117,6 +120,7 @@ export default function CheckPixels(prop) {
 
   const showModal = () => {
     setIsOpen(true);
+    TT.track('intliveClickLiveOpen');
   };
 
   const hideModal = () => {
@@ -132,6 +136,7 @@ export default function CheckPixels(prop) {
   const showAceModal = () => {
     if (editStatus === false) {
       setDesiApiData(data[1].desiAPIdata);
+      TT.track('editDesignerConfig');
     }
     setIsAceOpen(true);
   };
@@ -142,6 +147,7 @@ export default function CheckPixels(prop) {
 
   const reloadStatusListner = () => {
     setPageStatus('refresh');
+
     port.postMessage({
       reload: true,
       editedDesiConf:
@@ -151,6 +157,7 @@ export default function CheckPixels(prop) {
         btoa(unescape(encodeURIComponent(desiApiData))),
     });
     setEditStatus(true);
+    TT.track('refreshAdUnit');
   };
 
   // Call scrollIntoView when the transition starts
@@ -160,6 +167,7 @@ export default function CheckPixels(prop) {
 
   function openDcListener() {
     window.open(data[1].url);
+    TT.track('openDCinNewTab');
   }
 
   function downloadDcListener() {
@@ -173,6 +181,7 @@ export default function CheckPixels(prop) {
     document.body.appendChild(anchor);
     anchor.click();
     document.body.removeChild(anchor);
+    TT.track('download');
   }
 
   const handleCompButtonClick = () => {

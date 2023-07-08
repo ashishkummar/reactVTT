@@ -14,6 +14,8 @@
   },
   "dependencies": {
     "ace-builds": "^1.21.1",
+    "axios": "^1.4.0",
+    "d3": "^7.8.5",
     "react": "^18.2.0",
     "react-ace": "^10.1.0",
     "react-bootstrap": "^2.7.4",

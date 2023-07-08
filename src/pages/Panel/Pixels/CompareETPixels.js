@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './pixels.css';
+import Trackvtt from '../../TrackerAPI/Trackvtt';
 import {
   Button,
   ModalFooter,
@@ -11,6 +12,7 @@ import {
 import '../../Panel/bootstrap.min.css';
 
 export default function CompareETPixels(prop) {
+  const TT = new Trackvtt();
   const inputRef = useRef();
   const compareDivRef = useRef();
   const [isOpen, setIsOpen] = useState(false);
@@ -109,6 +111,7 @@ export default function CompareETPixels(prop) {
 
   function compareExpoTastpixels(_etPixs) {
     console.log('compareExpoTastpixels called');
+    TT.track('CompareWithET');
     //// intlive compare check --------------
     // cross examining
     for (let i = 0; i < prop.intLives.length; i++) {

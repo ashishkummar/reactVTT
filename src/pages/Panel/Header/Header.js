@@ -6,7 +6,10 @@ import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { FaBars, FaTimes } from 'react-icons/fa'; // Import icons from react-icons
 import './header.css';
 import AlertTicker from './AlertTicker';
+import Trackvtt from '../../TrackerAPI/Trackvtt';
+
 export default function Header() {
+  const TT = new Trackvtt();
   const [expanded, setExpanded] = useState(false);
   const [headerLogo, setHeaderLogo] = useState({
     logotype: logo,
@@ -16,6 +19,7 @@ export default function Header() {
 
   const handleToggle = () => {
     setExpanded(!expanded);
+    TT.track('burgerMenuClick');
   };
 
   useState(() => {
