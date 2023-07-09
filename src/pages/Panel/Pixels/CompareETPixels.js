@@ -58,26 +58,8 @@ export default function CompareETPixels(prop) {
       if (_etPxls === '') {
         _etPxls = 'No records available';
       }
-
       compareDivRef.current.innerHTML = _etPxls;
-
       compareExpoTastpixels(compareDivRef.current);
-
-      //console.log('--> ', $('#ctaGrid').get(0).getBoundingClientRect().y);
-      //.animate( properties [, duration] [, easing] [, complete] );
-      // movine pixel box popup to bottom
-      //$('#compWithET').css("display","block");
-
-      /*
-        $('#compWithET').animate({scrollTop:$('#compWithET').get(0).getBoundingClientRect().y-100}, {
-			duration:300, specialEasing: {
-			width: "linear",
-			height: "easeOutBounce"
-		}, complete: function() {
-			compareExpoTastpixels($('#etPixs')); // on complete of animation.
-		}});
-			*/
-      //}
     }; // end of of on ready state change
 
     xhttp.onerror = function () {
@@ -91,10 +73,6 @@ export default function CompareETPixels(prop) {
       console.log('LOADING:.. ', xhttp.status);
     };
 
-    //$('#model1close').on('click', function () {
-    // $('button#compareETpix').prop('disabled', false);
-    // spinner.addClass('d-none');
-    //});
     //
     xhttp.open(
       'GET',
